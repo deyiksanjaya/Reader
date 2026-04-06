@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reader Pro</title>
+    
+    <!-- WebApp Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="ReaderPro">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Georgia&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --app-bg: #ffffff;
+            --app-text: #121212;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--app-bg);
+            color: var(--app-text);
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+        }
+
+        .serif { font-family: 'Georgia', serif; }
+
+        ::selection {
+            background-color: #b3d7ff;
+            color: #000000;
+        }
+
+        .word-span { display: inline; cursor: text; }
+        
+        .target-preview { cursor: pointer; padding: 2px; border-radius: 4px; border: 1px solid transparent; }
+        .selected-target { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
+
+        .hidden-view { display: none !important; }
+        
+        .no-smooth { scroll-behavior: auto !important; }
+
+        .book-shadow {
+            box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.15), 0 5px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        #secret-settings {
+            z-index: 10000;
+            background: #ffffff;
+            overscroll-behavior: contain;
+        }
+    </style>
+</head>
+<body class="no-smooth">
+
+    <!-- TAMPILAN: LIBRARY -->
+    <div id="view-library" class="min-h-screen px-6 pt-12 pb-10 max-w-lg mx-auto">
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Koleksi Anda</p>
+                <h1 class="text-4xl font-extrabold tracking-tight">Library</h1>
+            </div>
+            <div id="magic-trigger" class="p-3 mb-1 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-300"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-8">
+            <div class="cursor-pointer active:scale-95 transition-transform" onclick="openBook()">
+                <div class="aspect-[2/3] rounded-xl book-shadow overflow-hidden bg-gray-100 relative">
+                    <img id="lib-cover-img" src="" class="w-full h-full object-cover hidden">
+                    <div id="default-cover-ui" class="w-full h-full bg-slate-900 p-5 flex flex-col justify-end text-white">
+                        <h2 id="lib-title-on-cover" class="serif text-xl font-bold leading-tight"></h2>
+                        <div class="w-6 h-0.5 bg-white/40 mt-4"></div>
+                    </div>
+                </div>
+                <h3 id="lib-label-title" class="mt-4 text-[14px] font-bold text-gray-900 truncate"></h3>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1 text-blue-500">Membaca Sekarang</p>
+            </div>
+            
+            <div class="opacity-20">
+                <div class="aspect-[2/3] rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+                </div>
+                <p class="mt-4 text-[13px] font-medium text-gray-300">Tambah Buku</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAMPILAN: READER -->
+    <div id="view-reader" class="hidden-view bg-white min-h-screen relative">
+        <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-gray-50 z-50">
+            <div class="flex items-center gap-2 cursor-pointer text-blue-600 font-bold" onclick="closeBook()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m15 18-6-6 6-6"/></svg>
+                <span class="text-base">Library</span>
+            </div>
+            <div class="flex items-center gap-6 text-gray-300">
+                <span class="text-lg font-bold select-none text-black">Aa</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </div>
+        </nav>
+
+        <main class="max-w-xl mx-auto px-7 pt-28 pb-44">
+            <header class="mb-14 text-center">
+                <p class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-bold mb-4">Bab Pertama</p>
+                <h1 id="reader-title" class="serif text-4xl font-bold text-gray-950 leading-tight"></h1>
+                <div class="w-10 h-0.5 bg-gray-100 mx-auto mt-10"></div>
+            </header>
+
+            <article id="reader-content" class="serif text-[21px] leading-relaxed text-justify space-y-10 text-gray-900">
+            </article>
+        </main>
+
+        <!-- Footer Tanpa Progress Bar -->
+        <footer class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-50 px-6 py-5 flex justify-between items-center z-50">
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                <span id="progress-text">0% SELESAI</span>
+            </div>
+            <div class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
+                <span>Halaman 1</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- PANEL KONTROL RAHASIA -->
+    <div id="secret-settings" class="fixed inset-0 hidden-view overflow-y-auto pb-20">
+        <div class="sticky top-0 bg-white border-b border-gray-100 px-6 py-5 flex justify-between items-center z-20">
+            <h2 class="text-xl font-black italic uppercase tracking-tighter">Magic Setup</h2>
+            <button onclick="toggleSettings()" class="bg-black text-white px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider">Simpan</button>
+        </div>
+
+        <div class="p-6 space-y-10 max-w-lg mx-auto">
+            <section>
+                <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500 mb-4">Branding & Sampul</h3>
+                <div class="space-y-4">
+                    <input type="text" id="input-title" class="w-full p-4 bg-gray-50 border rounded-xl text-sm font-medium" placeholder="Judul Buku">
+                    <input type="text" id="input-img-url" class="w-full p-4 bg-gray-50 border rounded-xl text-sm font-medium" placeholder="URL Gambar Sampul (Library)">
+                </div>
+            </section>
+
+            <section>
+                <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500 mb-4">Cerita Custom</h3>
+                <textarea id="input-article" class="w-full h-60 p-4 bg-gray-50 border rounded-2xl text-sm font-serif" placeholder="Tulis cerita di sini..."></textarea>
+                <button onclick="updateData()" class="mt-3 w-full py-3 bg-gray-100 text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest">Update Konten</button>
+            </section>
+
+            <section>
+                <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500 mb-4">Target Seleksi</h3>
+                <div id="target-picker-area" class="p-5 border rounded-2xl bg-gray-50 text-[15px] leading-relaxed serif max-h-80 overflow-y-auto"></div>
+                <div class="mt-4 p-4 bg-blue-600 rounded-xl flex justify-between items-center text-white">
+                    <span class="text-[10px] font-black uppercase tracking-widest opacity-70">Terkunci di:</span>
+                    <span id="selected-word-display" class="text-sm font-bold">Random</span>
+                </div>
+            </section>
+
+            <section>
+                <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500 mb-4">Threshold Pemicu</h3>
+                <div class="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border">
+                    <span class="text-sm font-bold text-gray-700">Aktif pada highlight ke-</span>
+                    <input type="number" id="input-threshold" value="1" min="1" class="w-16 p-2 bg-white border rounded-lg text-center font-black text-blue-600">
+                </div>
+            </section>
+
+            <button onclick="resetToDefault()" class="w-full py-4 text-red-400 text-[10px] font-black uppercase tracking-widest">Reset Total</button>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_STORY = `Ada sesuatu yang menolak untuk diam di antara baris-baris ini. Di balik tirai kabut yang menyelimuti ingatan kita, ada sebuah kebenaran yang terus berdenyut. Pernahkah kau bertanya, ke mana perginya kata-kata yang tidak sempat kau ucapkan? Mereka tidak menghilang; mereka hanya menunggu seseorang untuk menyentuh mereka dengan cara yang benar.
+
+Dunia digital adalah labirin yang aneh. Kita menganggapnya sebagai sekumpulan kode yang kaku, padahal ia adalah cermin dari kesadaran kita yang tak berujung. Setiap kali kau menggerakkan jari di atas layar ini, kau sebenarnya sedang menelusuri labirin emosi yang sudah tertanam jauh sebelum perangkat ini dibuat. Perasaan ingin memiliki, rasa penasaran, dan kebutuhan untuk memegang kendali adalah benang merah yang mengikat kita semua.
+
+Perhatikan baik-baik. Kau merasa yakin bahwa kaulah yang memegang kendali atas apa yang kau lihat. Kau bisa menandai sebuah kalimat, menyimpannya dalam memori, atau membagikannya kepada dunia. Namun, di dalam realitas yang kita huni sekarang, kendali hanyalah sebuah selimut tipis yang menutupi ketidakpastian yang luas. Terkadang, sesuatu yang kau anggap diam sebenarnya sedang bersiap untuk melompat, mencari tempat baru yang tak pernah kau duga sebelumnya.
+
+Jangan pernah meremehkan kekuatan sebuah jeda. Dua detik mungkin terasa sebentar bagi pikiran manusia yang selalu terburu-buru, namun bagi sebuah kata, dua detik adalah waktu yang cukup untuk merencanakan pelarian. Seperti halnya mimpi yang menguap tepat saat kau membuka mata, keberadaan teks ini pun bisa berubah menjadi sesuatu yang lain—sesuatu yang lebih personal, sesuatu yang mungkin ingin menyampaikan pesan rahasia padamu.
+
+Mungkin ini adalah saatnya bagimu untuk berhenti mencoba menaklukkan teks ini. Biarkan ia mengalir. Biarkan matamu tersesat di antara baris-baris yang mulai terasa asing. Karena hanya dalam ketidaktahuanlah, keajaiban yang sesungguhnya bisa terjadi. Dan saat kursor itu bergerak sendiri, jangan takut. Anggap saja itu adalah cara dunia mengingatkanmu bahwa keajaiban masih ada, bahkan di tempat yang paling tidak terduga sekalipun.`;
+
+        let config = {
+            title: "Simfoni Bayangan",
+            content: DEFAULT_STORY,
+            imgUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1000&auto=format&fit=crop",
+            targetIndex: -1,
+            threshold: 1
+        };
+
+        let highlightCount = 0;
+        let isJumping = false;
+        let clickHistory = [];
+        let allSpans = [];
+        let trickTimer = null;
+
+        // --- FUNGSI CORE ---
+
+        function save() { localStorage.setItem('magic_ebook_v7', JSON.stringify(config)); }
+
+        function load() {
+            const saved = localStorage.getItem('magic_ebook_v7');
+            if (saved) config = JSON.parse(saved);
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('lib-title-on-cover').innerText = config.title;
+            document.getElementById('lib-label-title').innerText = config.title;
+            document.getElementById('reader-title').innerText = config.title;
+            
+            const coverImg = document.getElementById('lib-cover-img');
+            const defaultUI = document.getElementById('default-cover-ui');
+            if (config.imgUrl && config.imgUrl.trim() !== "") {
+                coverImg.src = config.imgUrl;
+                coverImg.classList.remove('hidden');
+                defaultUI.classList.add('hidden');
+            } else {
+                coverImg.classList.add('hidden');
+                defaultUI.classList.remove('hidden');
+            }
+
+            document.getElementById('input-title').value = config.title;
+            document.getElementById('input-img-url').value = config.imgUrl;
+            document.getElementById('input-article').value = config.content;
+            document.getElementById('input-threshold').value = config.threshold;
+
+            renderReader();
+        }
+
+        function updateData() {
+            config.title = document.getElementById('input-title').value;
+            config.imgUrl = document.getElementById('input-img-url').value;
+            config.content = document.getElementById('input-article').value;
+            config.threshold = parseInt(document.getElementById('input-threshold').value) || 1;
+            save();
+            updateUI();
+            renderPicker();
+        }
+
+        function renderReader() {
+            const paras = config.content.split('\n\n');
+            const html = paras.map(p => {
+                const words = p.split(/\s+/);
+                return `<p>${words.map(w => `<span class="word-span">${w}</span>`).join(' ')}</p>`;
+            }).join('');
+            document.getElementById('reader-content').innerHTML = html;
+            allSpans = document.querySelectorAll('.word-span');
+        }
+
+        function renderPicker() {
+            const area = document.getElementById('target-picker-area');
+            const words = config.content.split(/\s+/);
+            area.innerHTML = words.map((w, i) => 
+                `<span class="target-preview ${config.targetIndex === i ? 'selected-target' : ''}" onclick="setTarget(${i})">${w}</span>`
+            ).join(' ');
+            const selectedText = (config.targetIndex === -1 || !words[config.targetIndex]) ? 'Random' : words[config.targetIndex];
+            document.getElementById('selected-word-display').innerText = selectedText;
+        }
+
+        function setTarget(idx) {
+            config.targetIndex = idx;
+            save();
+            renderPicker();
+        }
+
+        function toggleSettings() {
+            const modal = document.getElementById('secret-settings');
+            if (modal.classList.contains('hidden-view')) {
+                renderPicker();
+                modal.classList.remove('hidden-view');
+            } else {
+                updateData();
+                modal.classList.add('hidden-view');
+                highlightCount = 0;
+            }
+        }
+
+        function openBook() {
+            highlightCount = 0;
+            document.getElementById('view-library').classList.add('hidden-view');
+            document.getElementById('view-reader').classList.remove('hidden-view');
+            window.scrollTo(0, 0);
+            updateProgress();
+        }
+
+        function closeBook() {
+            document.getElementById('view-reader').classList.add('hidden-view');
+            document.getElementById('view-library').classList.remove('hidden-view');
+            if (trickTimer) clearTimeout(trickTimer);
+        }
+
+        function resetToDefault() {
+            if (confirm("Reset total semua pengaturan?")) {
+                localStorage.removeItem('magic_ebook_v7');
+                location.reload();
+            }
+        }
+
+        // --- UPDATE PERSENTASE (TEXT ONLY) ---
+        function updateProgress() {
+            const viewReader = document.getElementById('view-reader');
+            if (viewReader.classList.contains('hidden-view')) return;
+
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = document.documentElement.clientHeight;
+            
+            const scrollTotal = scrollHeight - clientHeight;
+            let scrolled = 0;
+            
+            if (scrollTotal > 0) {
+                scrolled = (scrollTop / scrollTotal) * 100;
+            } else {
+                scrolled = 100;
+            }
+
+            scrolled = Math.max(0, Math.min(100, scrolled));
+            document.getElementById('progress-text').innerText = Math.round(scrolled) + "% SELESAI";
+        }
+
+        // --- LOGIKA TRICK ---
+        document.addEventListener('selectionchange', () => {
+            if (document.getElementById('view-reader').classList.contains('hidden-view') || isJumping) return;
+
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+
+            if (trickTimer) clearTimeout(trickTimer);
+
+            if (text.length > 0) {
+                trickTimer = setTimeout(() => {
+                    highlightCount++;
+                    if (highlightCount >= config.threshold) {
+                        isJumping = true;
+                        let target;
+                        if (config.targetIndex !== -1 && allSpans[config.targetIndex]) {
+                            target = allSpans[config.targetIndex];
+                        } else {
+                            target = allSpans[Math.floor(Math.random() * allSpans.length)];
+                        }
+
+                        const range = document.createRange();
+                        range.selectNodeContents(target);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+
+                        target.scrollIntoView({ behavior: 'auto', block: 'center' });
+                        setTimeout(() => { isJumping = false; }, 500);
+                    }
+                }, 2000);
+            }
+        });
+
+        // Triple Tap Search Ikon
+        document.getElementById('magic-trigger').addEventListener('click', () => {
+            const now = Date.now();
+            clickHistory.push(now);
+            clickHistory = clickHistory.filter(t => now - t < 500);
+            if (clickHistory.length >= 3) {
+                toggleSettings();
+                clickHistory = [];
+            }
+        });
+
+        window.addEventListener('scroll', updateProgress);
+        window.addEventListener('resize', updateProgress);
+
+        load();
+    </script>
+</body>
+</html>
