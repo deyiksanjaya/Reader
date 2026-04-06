@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reader Pro</title>
+    <title>Library</title>
     
     <!-- WebApp Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="ReaderPro">
+    <meta name="apple-mobile-web-app-title" content="Library">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -22,7 +22,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--app-bg);
+            background-color: #fcfcfc;
             color: var(--app-text);
             margin: 0;
             -webkit-tap-highlight-color: transparent;
@@ -38,21 +38,22 @@
 
         .word-span { display: inline; cursor: text; }
         
-        .target-preview { cursor: pointer; padding: 2px 4px; border-radius: 4px; border: 1px solid transparent; transition: all 0.2s; }
-        .selected-target { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
-
+        /* Layout Fixes */
         .hidden-view { display: none !important; }
         
-        .book-shadow {
-            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.15);
+        /* Card & UI Styles */
+        .book-card-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
 
-        #secret-settings {
-            z-index: 10000;
-            background: #ffffff;
-            overscroll-behavior: contain;
+        .bottom-nav-blur {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
+        /* Setup Elements */
         .info-btn {
             width: 16px;
             height: 16px;
@@ -65,8 +66,6 @@
             font-weight: 800;
             color: #94a3b8;
             cursor: pointer;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
         }
 
         .info-text {
@@ -82,60 +81,146 @@
             border: 1px solid #f1f5f9;
         }
 
-        .paypal-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .paypal-btn:active {
-            transform: scale(0.95);
-        }
+        .target-preview { cursor: pointer; padding: 2px 4px; border-radius: 4px; border: 1px solid transparent; }
+        .selected-target { background-color: #3b82f6 !important; color: white !important; }
     </style>
 </head>
-<body class="bg-white">
+<body>
 
-    <!-- VIEW: LIBRARY -->
-    <div id="view-library" class="min-h-screen px-6 pt-12 pb-10 max-w-lg mx-auto">
-        <div class="flex justify-between items-end mb-10">
-            <div>
-                <p class="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-1 text-blue-500">Your Collection</p>
-                <h1 class="text-4xl font-extrabold tracking-tight text-gray-900">Library</h1>
+    <!-- VIEW: LIBRARY (Main Screen) -->
+    <div id="view-library" class="min-h-screen px-5 pt-8 pb-32 max-w-lg mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-4xl font-extrabold tracking-tight">Library</h1>
+            <div class="flex gap-2">
+                <button class="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-full border border-gray-100 shadow-sm">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <button class="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-full border border-gray-100 shadow-sm text-gray-400">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </button>
             </div>
-            <div id="magic-trigger" class="p-3 mb-1 cursor-pointer active:opacity-50">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-200"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            </div>
-        </div>
+        </header>
 
-        <div class="grid grid-cols-2 gap-8">
-            <div class="cursor-pointer active:scale-95 transition-transform" onclick="openBook()">
-                <div class="aspect-[2/3] rounded-2xl book-shadow overflow-hidden bg-gray-100 relative">
+        <!-- Grid of Books -->
+        <div class="grid grid-cols-2 gap-x-5 gap-y-8">
+            
+            <!-- BOOK 1: THE MAGIC ONE (Your custom book) -->
+            <div class="flex flex-col cursor-pointer" onclick="openBook()">
+                <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-card-shadow mb-3 bg-gray-200">
                     <img id="lib-cover-img" src="" class="w-full h-full object-cover hidden">
-                    <div id="default-cover-ui" class="w-full h-full bg-slate-900 p-6 flex flex-col justify-end text-white text-left">
-                        <h2 id="lib-title-on-cover" class="serif text-xl font-bold leading-tight text-white"></h2>
-                        <div class="w-8 h-1 bg-white/30 mt-4 rounded-full"></div>
+                    <div id="default-cover-ui" class="w-full h-full bg-slate-800 p-4 flex flex-col justify-between text-white">
+                        <div>
+                            <h2 id="lib-title-on-cover" class="serif text-lg font-bold leading-tight"></h2>
+                            <p class="text-[9px] opacity-60 uppercase mt-1 font-bold">Unknown Author</p>
+                        </div>
+                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                            <div class="w-2 h-2 rounded-full bg-white"></div>
+                        </div>
                     </div>
                 </div>
-                <h3 id="lib-label-title" class="mt-4 text-[14px] font-bold text-gray-900 truncate px-1"></h3>
-                <p class="text-[10px] text-blue-500 font-bold uppercase tracking-wider mt-1 px-1">Reading Now</p>
-            </div>
-            
-            <div class="opacity-20 pointer-events-none">
-                <div class="aspect-[2/3] rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+                <div class="flex justify-between items-start px-0.5">
+                    <div>
+                        <span class="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">Sample</span>
+                    </div>
+                    <button class="text-gray-300">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
                 </div>
-                <p class="mt-4 text-[13px] font-medium text-gray-300 px-1">Add Book</p>
             </div>
+
+            <!-- FAKE BOOK 2 -->
+            <div class="flex flex-col opacity-90 grayscale-[0.3]">
+                <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-card-shadow mb-3 bg-white border border-gray-100 p-4">
+                    <div class="h-full border border-gray-100 flex flex-col items-center justify-center text-center p-2">
+                        <p class="text-[8px] text-gray-400 mb-2">Copyright © 2024</p>
+                        <h2 class="serif text-xl font-bold italic mb-4">Agory</h2>
+                        <div class="w-full space-y-1">
+                            <div class="h-0.5 bg-gray-100 w-full"></div>
+                            <div class="h-0.5 bg-gray-100 w-3/4 mx-auto"></div>
+                            <div class="h-0.5 bg-gray-100 w-full"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center px-0.5">
+                    <p class="text-[11px] text-gray-400 font-bold uppercase tracking-tighter">Finished</p>
+                    <div class="flex items-center gap-2 text-gray-300">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19c.703 0 1.332-.31 1.761-.806m-9.022-2.194a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5z"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAKE BOOK 3 -->
+            <div class="flex flex-col">
+                <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-card-shadow mb-3 bg-green-800 p-6 flex flex-col justify-between text-white">
+                    <div class="border-2 border-white/20 p-4 text-center">
+                        <h2 class="text-lg font-black tracking-widest uppercase">Getting Cold</h2>
+                    </div>
+                    <p class="text-sm font-medium opacity-60">Unknown Author</p>
+                </div>
+                <div class="flex justify-between items-center px-0.5">
+                    <p class="text-[11px] text-gray-400 font-bold uppercase tracking-tighter">96%</p>
+                    <div class="flex items-center gap-2 text-gray-300">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAKE BOOK 4 -->
+            <div class="flex flex-col">
+                <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-card-shadow mb-3 bg-gray-900">
+                    <img src="https://images.unsplash.com/photo-1543004218-ee141104975a?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover opacity-50">
+                    <div class="absolute inset-0 p-4 flex flex-col justify-center items-center text-center text-white">
+                        <p class="text-[10px] tracking-widest uppercase mb-1">Based on True Events</p>
+                        <h2 class="serif text-3xl font-black text-yellow-400 tracking-tighter">THE MIRAGE</h2>
+                        <div class="h-[1px] w-12 bg-white/20 my-4"></div>
+                        <p class="text-[9px] uppercase font-bold tracking-widest">Elizabeth Middleton</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center px-0.5">
+                    <span class="bg-blue-800 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">New</span>
+                    <button class="text-gray-300">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    </button>
+                </div>
+            </div>
+
         </div>
+
+        <!-- Floating Bottom Navigation -->
+        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm h-16 bottom-nav-blur rounded-full flex items-center justify-between px-2 z-50 shadow-2xl">
+            <div class="flex-1 flex justify-around items-center pr-12">
+                <div class="flex flex-col items-center gap-1">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span class="text-[9px] font-bold uppercase tracking-tighter">Home</span>
+                </div>
+                <div class="flex flex-col items-center gap-1 text-black">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5z"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <span class="text-[9px] font-bold uppercase tracking-tighter">Library</span>
+                </div>
+                <div class="flex flex-col items-center gap-1 text-gray-400">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                    <span class="text-[9px] font-bold uppercase tracking-tighter">Book Store</span>
+                </div>
+            </div>
+            <!-- Magic Trigger Search Button -->
+            <button id="magic-trigger" class="absolute right-1 w-14 h-14 bg-white border border-gray-100 rounded-full shadow-lg flex items-center justify-center text-gray-900 active:scale-90 transition-transform">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+        </nav>
     </div>
 
     <!-- VIEW: READER -->
     <div id="view-reader" class="hidden-view bg-white min-h-screen relative">
         <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-gray-50 z-50">
             <div class="flex items-center gap-2 cursor-pointer text-blue-600 font-bold" onclick="closeBook()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m15 18-6-6 6-6"/></svg>
-                <span class="text-base">Library</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+                <span>Library</span>
             </div>
             <div class="flex items-center gap-6 text-gray-400">
                 <span class="text-lg font-bold text-black select-none">Aa</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             </div>
         </nav>
 
@@ -145,140 +230,101 @@
                 <h1 id="reader-title" class="serif text-4xl font-bold text-gray-950 leading-tight"></h1>
                 <div class="w-10 h-0.5 bg-gray-100 mx-auto mt-10"></div>
             </header>
-
-            <article id="reader-content" class="serif text-[21px] leading-relaxed text-justify space-y-10 text-gray-900">
-            </article>
+            <article id="reader-content" class="serif text-[21px] leading-relaxed text-justify space-y-10 text-gray-900"></article>
         </main>
 
         <footer class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-50 px-6 py-6 flex justify-between items-center z-50">
-            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">
-                <span id="progress-text">0% COMPLETED</span>
-            </div>
-            <div class="text-[10px] font-bold text-gray-300 uppercase tracking-widest text-center">
-                <span>Page 1</span>
-            </div>
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest"><span id="progress-text">0% COMPLETED</span></div>
+            <div class="text-[10px] font-bold text-gray-300 uppercase tracking-widest"><span>Page 1</span></div>
         </footer>
     </div>
 
-    <!-- SECRET SETUP PANEL -->
-    <div id="secret-settings" class="fixed inset-0 hidden-view overflow-y-auto pb-24">
-        <div class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center z-20">
-            <h2 class="text-xl font-black italic uppercase tracking-tighter text-gray-900">Setup</h2>
-            <button onclick="toggleSettings()" class="bg-black text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-sm active:scale-95 transition-all">Save</button>
+    <!-- VIEW: SETUP MODAL -->
+    <div id="secret-settings" class="fixed inset-0 hidden-view overflow-y-auto pb-24 bg-white">
+        <div class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex justify-between items-center z-20">
+            <h2 class="text-xl font-black italic uppercase tracking-tighter">Setup</h2>
+            <button onclick="toggleSettings()" class="bg-black text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest">Save</button>
         </div>
 
-        <div class="px-6 space-y-0 max-w-lg mx-auto">
-            
-            <!-- Branding -->
-            <section class="border-b border-gray-100 py-12">
+        <div class="px-6 py-4 max-w-lg mx-auto">
+            <!-- Form Sections -->
+            <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-[0.15em] text-blue-500">Identity & Branding</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Identity & Branding</h3>
                     <div class="info-btn" onclick="toggleInfo('info-branding')">i</div>
                 </div>
-                <div id="info-branding" class="info-text">
-                    Set your book's identity. Use a high-quality image URL for the cover.
-                </div>
+                <div id="info-branding" class="info-text">Book title and cover URL. Cover is only visible in Library grid.</div>
                 <div class="space-y-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Book Title</label>
-                        <input type="text" id="input-title" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:border-blue-300 outline-none">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Cover Image (URL)</label>
-                        <input type="text" id="input-img-url" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:border-blue-300 outline-none">
-                    </div>
+                    <input type="text" id="input-title" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:outline-none" placeholder="Book Title">
+                    <input type="text" id="input-img-url" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:outline-none" placeholder="Cover Image URL">
                 </div>
             </section>
 
-            <!-- Content -->
-            <section class="border-b border-gray-100 py-12">
+            <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-[0.15em] text-blue-500">Story Content</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Story Content</h3>
                     <div class="info-btn" onclick="toggleInfo('info-content')">i</div>
                 </div>
-                <div id="info-content" class="info-text">
-                    Paste your story text. Click "Sync Words" after making changes to update the picker.
-                </div>
-                <div class="pt-2">
-                    <textarea id="input-article" class="w-full h-64 p-5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-serif leading-relaxed focus:border-blue-300 outline-none"></textarea>
-                    <button onclick="updateData()" class="mt-4 w-full py-4 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.25em] active:bg-blue-600 transition-colors">Sync & Refresh Words</button>
-                </div>
+                <div id="info-content" class="info-text">Your magic story. Use double new lines for paragraphs. Sync words after changing.</div>
+                <textarea id="input-article" class="w-full h-64 p-5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-serif leading-relaxed" placeholder="Story text..."></textarea>
+                <button onclick="updateData()" class="mt-4 w-full py-4 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Sync Words</button>
             </section>
 
-            <!-- Target -->
-            <section class="border-b border-gray-100 py-12">
+            <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-[0.15em] text-blue-500">Target Selection</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Target Selection</h3>
                     <div class="info-btn" onclick="toggleInfo('info-picker')">i</div>
                 </div>
-                <div id="info-picker" class="info-text">
-                    Tap a word below to lock it as the target.
-                </div>
+                <div id="info-picker" class="info-text">Choose the word the highlight will jump to.</div>
                 <div id="target-picker-area" class="p-5 border border-gray-100 rounded-2xl bg-gray-50 text-[15px] leading-relaxed serif max-h-72 overflow-y-auto"></div>
-                <div class="mt-5 p-4 bg-blue-600 rounded-xl flex justify-between items-center text-white shadow-xl">
-                    <span class="text-[10px] font-black uppercase tracking-widest opacity-80">Locked Word:</span>
-                    <span id="selected-word-display" class="text-sm font-bold truncate max-w-[150px]">Random</span>
+                <div class="mt-5 p-4 bg-blue-600 rounded-xl flex justify-between items-center text-white shadow-lg">
+                    <span class="text-[10px] font-black uppercase tracking-widest opacity-80">Target:</span>
+                    <span id="selected-word-display" class="text-sm font-bold truncate">Random</span>
                 </div>
             </section>
 
-            <!-- Mechanism -->
-            <section class="border-b border-gray-100 py-12">
+            <section class="py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-[0.15em] text-blue-500">Mechanism Trigger</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Mechanism Trigger</h3>
                     <div class="info-btn" onclick="toggleInfo('info-trigger')">i</div>
                 </div>
-                <div id="info-trigger" class="info-text">
-                    Attempt #: Which highlight triggers the jump. <br>Delay: How many seconds to wait after highlighting before the jump occurs.
-                </div>
-                <div class="space-y-4 pt-2">
-                    <div class="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                <div id="info-trigger" class="info-text">Attempt #: When jump triggers. Delay: Seconds before jumping.</div>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-5 bg-gray-50 rounded-xl border border-gray-100">
                         <span class="text-sm font-bold text-gray-700">Trigger on attempt #</span>
-                        <input type="number" id="input-threshold" value="1" min="1" class="w-16 p-2 bg-white border border-gray-200 rounded-lg text-center font-black text-blue-600 outline-none">
+                        <input type="number" id="input-threshold" value="1" min="1" class="w-16 p-2 bg-white border rounded text-center font-black text-blue-600">
                     </div>
-                    <div class="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                    <div class="flex justify-between items-center p-5 bg-gray-50 rounded-xl border border-gray-100">
                         <span class="text-sm font-bold text-gray-700">Jump Delay (Seconds)</span>
-                        <input type="number" id="input-delay" value="2" min="0" step="0.5" class="w-16 p-2 bg-white border border-gray-200 rounded-lg text-center font-black text-blue-600 outline-none">
+                        <input type="number" id="input-delay" value="2" min="0" step="0.5" class="w-16 p-2 bg-white border rounded text-center font-black text-blue-600">
                     </div>
                 </div>
             </section>
 
-            <!-- About Section -->
+            <!-- ABOUT ME Section -->
             <section class="py-16">
-                <div class="bg-gradient-to-br from-gray-50 via-slate-50 to-blue-50/40 rounded-[2rem] p-10 border border-blue-100/50 shadow-sm relative overflow-hidden text-center">
-                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl"></div>
-                    
-                    <div class="relative z-10">
-                        <h3 class="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400 mb-6">About</h3>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Concepted by</p>
-                        <p class="text-lg font-black text-gray-900 serif italic tracking-tight mb-8">Heri Sanjaya</p>
-                        
-                        <div class="pt-8 border-t border-blue-100/60">
-                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-5">Buy me a coffee</p>
-                            <a href="https://www.paypal.me/ighsss" target="_blank" class="paypal-btn inline-flex items-center gap-3 bg-white px-8 py-4 rounded-2xl border border-blue-100 shadow-sm hover:shadow-md transition-all">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/PayPal_Logo_Icon_2014.svg" class="w-4 h-4" alt="PayPal">
-                                <span class="text-blue-900 font-bold text-xs tracking-tight">PayPal @ighsss</span>
-                            </a>
-                        </div>
+                <div class="bg-gradient-to-br from-gray-50 to-blue-50/40 rounded-[2rem] p-10 border border-blue-100/50 text-center">
+                    <h3 class="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400 mb-6">About Me</h3>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Concepted by</p>
+                    <p class="text-lg font-black text-gray-900 serif italic mb-8">Heri Sanjaya</p>
+                    <div class="pt-8 border-t border-blue-100/60">
+                        <p class="text-[9px] font-black text-gray-400 uppercase mb-5">Buy me a coffee</p>
+                        <a href="https://www.paypal.me/ighsss" target="_blank" class="inline-flex items-center gap-3 bg-white px-8 py-4 rounded-2xl border border-blue-100 shadow-sm">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/PayPal_Logo_Icon_2014.svg" class="w-4 h-4" alt="PayPal">
+                            <span class="text-blue-900 font-bold text-xs">PayPal @ighsss</span>
+                        </a>
                     </div>
                 </div>
             </section>
-
-            <div class="py-10 text-center">
-                <button onclick="resetToDefault()" class="text-gray-300 text-[10px] font-black uppercase tracking-[0.3em] hover:text-red-400 transition-colors">Factory Reset</button>
+            
+            <div class="text-center pb-20">
+                <button onclick="resetToDefault()" class="text-red-400 text-[10px] font-black uppercase tracking-widest">Factory Reset</button>
             </div>
         </div>
     </div>
 
     <script>
-        const DEFAULT_STORY = `There is something in these words that refuses to stay still. Beyond the veil of mist that shrouds our memories, there is a truth that continues to pulse. Have you ever wondered where the words go when they are left unspoken? They do not vanish; they only wait for someone to touch them in the right way.
-
-The digital world is a strange labyrinth. We think of it as a collection of cold codes, when in fact it is a mirror of our collective consciousness. Every time you move your finger across this screen, you are tracing a labyrinth of emotions that were planted long before this device was built. The feeling of wanting to possess, the curiosity, and the need to be in control are the common threads that bind us all.
-
-Look closely. You feel certain that you are the one in control of what you see. You can mark a sentence, save it in memory, or share it with the world. However, in the reality we inhabit now, control is only a thin blanket covering a vast uncertainty. Sometimes, something you think is still is actually preparing to jump, looking for a new place you never expected.
-
-Never underestimate the power of a pause. A few seconds may feel like a short time to the always-hurrying human mind, but for a word, those seconds are enough time to plan an escape. Just like a dream that evaporates the moment you open your eyes, the existence of this text can change into something else—something more personal.
-
-Perhaps it is time for you to stop trying to conquer this text. Let it flow. Let your eyes get lost among the lines that are beginning to feel foreign. Because only in ignorance can real magic happen. And when this cursor moves on its own, do not be afraid. Think of it as the world's way of reminding you that magic still exists, even in the most unexpected places.`;
+        const DEFAULT_STORY = `There is something in these words that refuses to stay still. Beyond the veil of mist that shrouds our memories, there is a truth that continues to pulse. Have you ever wondered where the words go when they are left unspoken? They do not vanish; they only wait for someone to touch them in the right way.\n\nThe digital world is a strange labyrinth. We think of it as a collection of cold codes, when in fact it is a mirror of our collective consciousness. Every time you move your finger across this screen, you are tracing a labyrinth of emotions that were planted long before this device was built.\n\nLook closely. You feel certain that you are the one in control of what you see. You can mark a sentence, save it in memory, or share it with the world. However, in the reality we inhabit now, control is only a thin blanket covering a vast uncertainty.\n\nNever underestimate the power of a pause. A few seconds may feel like a short time to the always-hurrying human mind, but for a word, those seconds are enough time to plan an escape. Think of it as the world's way of reminding you that magic still exists, even in the most unexpected places.`;
 
         let config = {
             title: "Shadow Symphony",
@@ -286,7 +332,7 @@ Perhaps it is time for you to stop trying to conquer this text. Let it flow. Let
             imgUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1000&auto=format&fit=crop",
             targetIndex: -1,
             threshold: 1,
-            delay: 2 // default in seconds
+            delay: 2
         };
 
         let highlightCount = 0;
@@ -294,8 +340,7 @@ Perhaps it is time for you to stop trying to conquer this text. Let it flow. Let
         let clickHistory = [];
         let allSpans = [];
         let trickTimer = null;
-
-        const STORAGE_KEY = 'magic_reader_pro_v21_final';
+        const STORAGE_KEY = 'magic_reader_pro_v22_layout';
 
         function toggleInfo(id) {
             const el = document.getElementById(id);
@@ -307,18 +352,14 @@ Perhaps it is time for you to stop trying to conquer this text. Let it flow. Let
         function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(config)); }
 
         function load() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) config = JSON.parse(saved);
-            } catch (e) { console.error(e); }
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) config = JSON.parse(saved);
             updateUI();
         }
 
         function updateUI() {
             document.getElementById('lib-title-on-cover').innerText = config.title;
-            document.getElementById('lib-label-title').innerText = config.title;
             document.getElementById('reader-title').innerText = config.title;
-            
             const libImg = document.getElementById('lib-cover-img');
             const defUI = document.getElementById('default-cover-ui');
             if (config.imgUrl && config.imgUrl.trim() !== "") {
@@ -326,19 +367,17 @@ Perhaps it is time for you to stop trying to conquer this text. Let it flow. Let
             } else {
                 libImg.classList.add('hidden'); defUI.classList.remove('hidden');
             }
-
             document.getElementById('input-title').value = config.title;
             document.getElementById('input-img-url').value = config.imgUrl;
             document.getElementById('input-article').value = config.content;
             document.getElementById('input-threshold').value = config.threshold;
-            document.getElementById('input-delay').value = config.delay || 2;
-
+            document.getElementById('input-delay').value = config.delay;
             renderReader();
             renderPicker();
         }
 
         function updateData() {
-            config.title = document.getElementById('input-title').value || "Shadow Symphony";
+            config.title = document.getElementById('input-title').value || "Book Title";
             config.imgUrl = document.getElementById('input-img-url').value;
             config.content = document.getElementById('input-article').value || DEFAULT_STORY;
             config.threshold = parseInt(document.getElementById('input-threshold').value) || 1;
@@ -382,7 +421,6 @@ Perhaps it is time for you to stop trying to conquer this text. Let it flow. Let
                 updateData();
                 modal.classList.add('hidden-view');
                 highlightCount = 0;
-                document.querySelectorAll('.info-text').forEach(item => item.style.display = 'none');
             }
         }
 
@@ -391,41 +429,26 @@ Perhaps it is time for you to stop trying to conquer this text. Let it flow. Let
             document.getElementById('view-library').classList.add('hidden-view');
             document.getElementById('view-reader').classList.remove('hidden-view');
             window.scrollTo(0, 0);
-            updateProgress();
         }
 
         function closeBook() {
             document.getElementById('view-reader').classList.add('hidden-view');
             document.getElementById('view-library').classList.remove('hidden-view');
-            if (trickTimer) clearTimeout(trickTimer);
         }
 
         function resetToDefault() {
-            if (confirm("Reset everything to factory default?")) {
+            if (confirm("Reset to factory settings?")) {
                 localStorage.removeItem(STORAGE_KEY);
                 location.reload();
             }
         }
 
-        function updateProgress() {
-            const reader = document.getElementById('view-reader');
-            if (reader.classList.contains('hidden-view')) return;
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const scrollHeight = document.documentElement.scrollHeight;
-            const clientHeight = document.documentElement.clientHeight;
-            const scrollTotal = scrollHeight - clientHeight;
-            let scrolled = scrollTotal > 0 ? (scrollTop / scrollTotal) * 100 : 100;
-            document.getElementById('progress-text').innerText = Math.round(Math.max(0, Math.min(100, scrolled))) + "% COMPLETED";
-        }
-
         document.addEventListener('selectionchange', () => {
-            const readerVisible = !document.getElementById('view-reader').classList.contains('hidden-view');
-            if (!readerVisible || isJumping) return;
+            if (document.getElementById('view-reader').classList.contains('hidden-view') || isJumping) return;
             const selection = window.getSelection();
             const text = selection.toString().trim();
             if (trickTimer) { clearTimeout(trickTimer); trickTimer = null; }
             if (text.length > 0) {
-                // Convert seconds to milliseconds
                 const delayMs = (config.delay || 2) * 1000;
                 trickTimer = setTimeout(() => {
                     highlightCount++;
@@ -452,8 +475,15 @@ Perhaps it is time for you to stop trying to conquer this text. Let it flow. Let
             if (clickHistory.length >= 3) { toggleSettings(); clickHistory = []; }
         });
 
-        window.addEventListener('scroll', updateProgress);
-        window.addEventListener('resize', updateProgress);
+        window.addEventListener('scroll', () => {
+            const reader = document.getElementById('view-reader');
+            if (reader.classList.contains('hidden-view')) return;
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollTotal = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrolled = scrollTotal > 0 ? (scrollTop / scrollTotal) * 100 : 100;
+            document.getElementById('progress-text').innerText = Math.round(Math.max(0, Math.min(100, scrolled))) + "% COMPLETED";
+        });
+
         load();
     </script>
 </body>
