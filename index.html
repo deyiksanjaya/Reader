@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Books</title>
     
-    <!-- WebApp Meta Tags & App Icon -->
+    <!-- WebApp Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="mobile-web-app-capable" content="yes">
@@ -38,10 +38,18 @@
             color: #000000;
         }
 
-        /* Span untuk pembungkus kata agar bisa di-highlight secara individu */
         .word-span { display: inline; cursor: text; }
         
-        /* Navigasi bawah dengan efek blur (Glassmorphism) */
+        .target-preview { cursor: pointer; padding: 2px 4px; border-radius: 4px; border: 1px solid transparent; transition: all 0.2s; }
+        .selected-target { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
+
+        .hidden-view { display: none !important; }
+        
+        .book-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Navigasi blur */
         .bottom-nav-blur {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(25px);
@@ -49,7 +57,12 @@
             border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
-        /* Setup view elements */
+        #secret-settings {
+            z-index: 10000;
+            background: #ffffff;
+            overscroll-behavior: contain;
+        }
+
         .info-btn {
             width: 16px;
             height: 16px;
@@ -77,21 +90,22 @@
             border: 1px solid #f1f5f9;
         }
 
-        .target-preview { cursor: pointer; padding: 2px 4px; border-radius: 4px; border: 1px solid transparent; transition: all 0.2s; }
-        .selected-target { background-color: #3b82f6 !important; color: white !important; }
-        
-        .book-shadow {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        .paypal-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .paypal-btn:active {
+            transform: scale(0.95);
         }
 
-        .hidden-view { display: none !important; }
+        #target-picker-area {
+            scroll-behavior: smooth;
+        }
     </style>
 </head>
 <body>
 
-    <!-- VIEW: LIBRARY (Halaman Utama) -->
+    <!-- VIEW: LIBRARY -->
     <div id="view-library" class="min-h-screen px-5 pt-8 pb-32 max-w-lg mx-auto">
-        <!-- Header sesuai screenshot -->
         <header class="flex justify-between items-center mb-8">
             <h1 class="text-4xl font-extrabold tracking-tight">Library</h1>
             <div class="flex gap-2">
@@ -104,10 +118,8 @@
             </div>
         </header>
 
-        <!-- Grid Buku -->
         <div class="grid grid-cols-2 gap-x-5 gap-y-8">
-            
-            <!-- BUKU UTAMA (Buku sulap lo) -->
+            <!-- Buku Utama -->
             <div class="flex flex-col cursor-pointer" onclick="openBook()">
                 <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-gray-200">
                     <img id="lib-cover-img" src="" class="w-full h-full object-cover hidden">
@@ -131,7 +143,7 @@
                 </div>
             </div>
 
-            <!-- BUKU PALSU 2 -->
+            <!-- Buku Palsu 1 -->
             <div class="flex flex-col opacity-90 grayscale-[0.2]">
                 <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-white border border-gray-100 p-4">
                     <div class="h-full border border-gray-50 flex flex-col items-center justify-center text-center p-2">
@@ -152,7 +164,7 @@
                 </div>
             </div>
 
-            <!-- BUKU PALSU 3 -->
+            <!-- Buku Palsu 2 -->
             <div class="flex flex-col">
                 <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-green-700 p-6 flex flex-col justify-between text-white">
                     <div class="border-2 border-white/20 p-4 text-center">
@@ -166,7 +178,7 @@
                 </div>
             </div>
 
-            <!-- BUKU PALSU 4 -->
+            <!-- Buku Palsu 3 -->
             <div class="flex flex-col">
                 <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-gray-900">
                     <img src="https://images.unsplash.com/photo-1543004218-ee141104975a?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover opacity-50">
@@ -184,7 +196,7 @@
             </div>
         </div>
 
-        <!-- Floating Bottom Navigation -->
+        <!-- Floating Nav -->
         <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-sm h-16 bottom-nav-blur rounded-full flex items-center justify-between px-2 z-50 shadow-2xl">
             <div class="flex-1 flex justify-around items-center pr-12 text-gray-400">
                 <div class="flex flex-col items-center gap-1">
@@ -200,14 +212,14 @@
                     <span class="text-[9px] font-bold uppercase tracking-tighter">Store</span>
                 </div>
             </div>
-            <!-- Magic Trigger Search Icon (3x Tap for Setup) -->
+            <!-- Magic Trigger -->
             <button id="magic-trigger" class="absolute right-1 w-14 h-14 bg-white border border-gray-100 rounded-full shadow-lg flex items-center justify-center text-gray-950 active:scale-90 transition-transform">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </button>
         </nav>
     </div>
 
-    <!-- VIEW: READER (Halaman Baca) -->
+    <!-- VIEW: READER -->
     <div id="view-reader" class="hidden-view bg-white min-h-screen relative">
         <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-gray-50 z-50">
             <div class="flex items-center gap-2 cursor-pointer text-blue-600 font-bold" onclick="closeBook()">
@@ -231,15 +243,15 @@
 
         <footer class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-50 px-6 py-6 flex justify-between items-center z-50">
             <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest"><span id="progress-text">0% COMPLETED</span></div>
-            <div class="text-[10px] font-bold text-gray-300 uppercase tracking-widest text-center"><span>Page 1</span></div>
+            <div class="text-[10px] font-bold text-gray-300 uppercase tracking-widest"><span>Page 1</span></div>
         </footer>
     </div>
 
-    <!-- VIEW: SETUP (Secret Menu) -->
+    <!-- VIEW: SETUP MODAL -->
     <div id="secret-settings" class="fixed inset-0 hidden-view overflow-y-auto pb-24 bg-white">
         <div class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex justify-between items-center z-20">
             <h2 class="text-xl font-black italic uppercase tracking-tighter">Setup</h2>
-            <button onclick="toggleSettings()" class="bg-black text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest active:scale-95 transition-transform">Save</button>
+            <button onclick="toggleSettings()" class="bg-black text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest">Save</button>
         </div>
 
         <div class="px-6 py-4 max-w-lg mx-auto">
@@ -248,20 +260,21 @@
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Identity & Branding</h3>
                     <div class="info-btn" onclick="toggleInfo('info-branding')">i</div>
                 </div>
-                <div id="info-branding" class="info-text">Book title and cover image. This is prioritized from memory.</div>
+                <div id="info-branding" class="info-text">Book title and cover URL. Cover is only visible in Library grid.</div>
                 <div class="space-y-6">
-                    <input type="text" id="input-title" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium outline-none" placeholder="Book Title">
-                    <input type="text" id="input-img-url" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium outline-none" placeholder="Cover Image URL">
+                    <input type="text" id="input-title" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:outline-none" placeholder="Book Title">
+                    <input type="text" id="input-img-url" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:outline-none" placeholder="Cover Image URL">
                 </div>
             </section>
 
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Story Content</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Book Content</h3>
                     <div class="info-btn" onclick="toggleInfo('info-content')">i</div>
                 </div>
-                <div id="info-content" class="info-text">Paste your magic story. Click "Sync" to refresh the target word picker.</div>
-                <textarea id="input-article" class="w-full h-64 p-5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-serif leading-relaxed outline-none" placeholder="Type here..."></textarea>
+                <div id="info-content" class="info-text">Create the custom book content for your routine. Sync after changing.</div>
+                <!-- Textarea for the story. Value will be injected via JS -->
+                <textarea id="input-article" class="w-full h-64 p-5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-serif leading-relaxed outline-none" placeholder="Type your story here..."></textarea>
                 <button onclick="updateData()" class="mt-4 w-full py-4 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Sync Words</button>
             </section>
 
@@ -270,9 +283,9 @@
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Target Selection</h3>
                     <div class="info-btn" onclick="toggleInfo('info-picker')">i</div>
                 </div>
-                <div id="info-picker" class="info-text">Select the precise word for the teleportation trick.</div>
-                <div id="target-picker-area" class="p-5 border border-gray-100 rounded-2xl bg-gray-50 text-[15px] leading-relaxed serif max-h-72 overflow-y-auto"></div>
-                <div class="mt-5 p-4 bg-blue-600 rounded-xl flex justify-between items-center text-white shadow-xl">
+                <div id="info-picker" class="info-text">Select the precise word you want to force on the spectator.</div>
+                <div id="target-picker-area" class="p-6 border border-gray-200 rounded-2xl bg-gray-50 serif text-[21px] leading-relaxed text-justify space-y-10 text-gray-900 max-h-[400px] overflow-y-auto"></div>
+                <div class="mt-5 p-4 bg-blue-600 rounded-xl flex justify-between items-center text-white shadow-lg">
                     <span class="text-[10px] font-black uppercase tracking-widest opacity-80">Target:</span>
                     <span id="selected-word-display" class="text-sm font-bold truncate">Random</span>
                 </div>
@@ -280,30 +293,29 @@
 
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Mechanism</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Mechanism Trigger</h3>
                     <div class="info-btn" onclick="toggleInfo('info-trigger')">i</div>
                 </div>
-                <div id="info-trigger" class="info-text">Set attempt threshold and jump delay.</div>
+                <div id="info-trigger" class="info-text">Attempt #: choose When jump triggers. Delay: Seconds before jumping to the force word.</div>
                 <div class="space-y-4">
-                    <div class="flex justify-between items-center p-5 bg-gray-50 rounded-xl border">
+                    <div class="flex justify-between items-center p-5 bg-gray-50 rounded-xl border border-gray-100">
                         <span class="text-sm font-bold text-gray-700">Trigger on attempt #</span>
-                        <input type="number" id="input-threshold" value="1" min="1" class="w-16 p-2 bg-white border rounded text-center font-black text-blue-600">
+                        <input type="number" id="input-threshold" value="1" min="1" class="w-16 p-2 bg-white border rounded text-center font-black text-blue-600 outline-none">
                     </div>
-                    <div class="flex justify-between items-center p-5 bg-gray-50 rounded-xl border">
+                    <div class="flex justify-between items-center p-5 bg-gray-50 rounded-xl border border-gray-100">
                         <span class="text-sm font-bold text-gray-700">Jump Delay (Seconds)</span>
-                        <input type="number" id="input-delay" value="2" min="0" step="0.5" class="w-16 p-2 bg-white border rounded text-center font-black text-blue-600">
+                        <input type="number" id="input-delay" value="2" min="0" step="0.5" class="w-16 p-2 bg-white border rounded text-center font-black text-blue-600 outline-none">
                     </div>
                 </div>
             </section>
 
-            <!-- About Me Card -->
             <section class="py-16">
-                <div class="bg-gradient-to-br from-gray-50 to-blue-50/50 rounded-[2rem] p-10 border border-blue-100/50 text-center relative overflow-hidden">
+                <div class="bg-gradient-to-br from-gray-50 to-blue-50/40 rounded-[2rem] p-10 border border-blue-100/50 text-center relative overflow-hidden">
                     <h3 class="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400 mb-6">About Me</h3>
                     <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Concepted by</p>
-                    <p class="text-lg font-black text-gray-900 serif italic tracking-tight mb-8">Heri Sanjaya</p>
+                    <p class="text-lg font-black text-gray-900 serif italic mb-8">Heri Sanjaya</p>
                     <div class="pt-8 border-t border-blue-100/60">
-                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-5">Buy me a coffee</p>
+                        <p class="text-[9px] font-black text-gray-400 uppercase mb-5 tracking-widest">Buy me a coffee</p>
                         <a href="https://www.paypal.me/ighsss" target="_blank" class="inline-flex items-center gap-3 bg-white px-8 py-4 rounded-2xl border border-blue-100 shadow-sm active:scale-95 transition-all">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/PayPal_Logo_Icon_2014.svg" class="w-4 h-4" alt="PayPal">
                             <span class="text-blue-900 font-bold text-xs">PayPal @ighsss</span>
@@ -319,7 +331,6 @@
     </div>
 
     <script>
-        // --- DATA DEFAULTS ---
         const DEFAULT_STORY = `There is something in these words that refuses to stay still. Beyond the veil of mist that shrouds our memories, there is a truth that continues to pulse. Have you ever wondered where the words go when they are left unspoken? They do not vanish; they only wait for someone to touch them in the right way.\n\nThe digital world is a strange labyrinth. We think of it as a collection of cold codes, when in fact it is a mirror of our collective consciousness. Every time you move your finger across this screen, you are tracing a labyrinth of emotions that were planted long before this device was built.\n\nLook closely. You feel certain that you are the one in control of what you see. You can mark a sentence, save it in memory, or share it with the world. However, in the reality we inhabit now, control is only a thin blanket covering a vast uncertainty.\n\nNever underestimate the power of a pause. A few seconds may feel like a short time to the always-hurrying human mind, but for a word, those seconds are enough time to plan an escape. Think of it as the world's way of reminding you that magic still exists, even in the most unexpected places.`;
 
         let config = {
@@ -336,9 +347,10 @@
         let clickHistory = [];
         let allSpans = [];
         let trickTimer = null;
-        const STORAGE_KEY = 'magic_reader_pro_stable_v1';
+        
+        // Ganti nama key local storage biar force reload data
+        const STORAGE_KEY = 'magic_reader_pro_stable_v4';
 
-        // --- CORE FUNCTIONS ---
         function toggleInfo(id) {
             const el = document.getElementById(id);
             const isVisible = el.style.display === 'block';
@@ -350,9 +362,7 @@
 
         function load() {
             const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                config = JSON.parse(saved);
-            }
+            if (saved) config = JSON.parse(saved);
             updateUI();
         }
 
@@ -361,13 +371,13 @@
             document.getElementById('reader-title').innerText = config.title;
             const libImg = document.getElementById('lib-cover-img');
             const defUI = document.getElementById('default-cover-ui');
-            
             if (config.imgUrl && config.imgUrl.trim() !== "") {
                 libImg.src = config.imgUrl; libImg.classList.remove('hidden'); defUI.classList.add('hidden');
             } else {
                 libImg.classList.add('hidden'); defUI.classList.remove('hidden');
             }
-
+            
+            // Set value input
             document.getElementById('input-title').value = config.title;
             document.getElementById('input-img-url').value = config.imgUrl;
             document.getElementById('input-article').value = config.content;
@@ -400,12 +410,32 @@
 
         function renderPicker() {
             const area = document.getElementById('target-picker-area');
-            const words = config.content.split(/\s+/).filter(w => w !== "");
-            area.innerHTML = words.map((w, i) => 
-                `<span class="target-preview ${config.targetIndex === i ? 'selected-target' : ''}" onclick="setTarget(${i})">${w}</span>`
-            ).join(' ');
-            const selectedText = (config.targetIndex === -1 || !words[config.targetIndex]) ? 'Random' : words[config.targetIndex];
+            const paras = config.content.split('\n\n');
+            let globalWordIndex = 0;
+            
+            const html = paras.map(p => {
+                const words = p.split(/\s+/).filter(w => w !== "");
+                const paraHtml = words.map(w => {
+                    const currentIndex = globalWordIndex++;
+                    return `<span class="target-preview ${config.targetIndex === currentIndex ? 'selected-target' : ''}" onclick="setTarget(${currentIndex})">${w}</span>`;
+                }).join(' ');
+                return `<p>${paraHtml}</p>`;
+            }).join('');
+            
+            area.innerHTML = html;
+            
+            const allWords = config.content.split(/\s+/).filter(w => w !== "");
+            const selectedText = (config.targetIndex === -1 || !allWords[config.targetIndex]) ? 'Random' : allWords[config.targetIndex];
             document.getElementById('selected-word-display').innerText = selectedText;
+
+            setTimeout(() => {
+                const selectedSpan = area.querySelector('.selected-target');
+                if (selectedSpan) {
+                    const container = area;
+                    const scrollPos = selectedSpan.offsetTop - container.offsetTop - (container.clientHeight / 2) + (selectedSpan.clientHeight / 2);
+                    container.scrollTop = scrollPos;
+                }
+            }, 50);
         }
 
         function setTarget(idx) {
@@ -439,19 +469,17 @@
         }
 
         function resetToDefault() {
-            if (confirm("Reset everything to factory default?")) {
+            if (confirm("Reset to factory settings?")) {
                 localStorage.removeItem(STORAGE_KEY);
                 location.reload();
             }
         }
 
-        // --- TRICK LOGIC ---
         document.addEventListener('selectionchange', () => {
             if (document.getElementById('view-reader').classList.contains('hidden-view') || isJumping) return;
             const selection = window.getSelection();
             const text = selection.toString().trim();
             if (trickTimer) { clearTimeout(trickTimer); trickTimer = null; }
-            
             if (text.length > 0) {
                 const delayMs = (config.delay || 2) * 1000;
                 trickTimer = setTimeout(() => {
@@ -472,7 +500,6 @@
             }
         });
 
-        // 3x Tap on Search Icon
         document.getElementById('magic-trigger').addEventListener('click', () => {
             const now = Date.now();
             clickHistory.push(now);
@@ -480,7 +507,6 @@
             if (clickHistory.length >= 3) { toggleSettings(); clickHistory = []; }
         });
 
-        // Progress Calculation
         window.addEventListener('scroll', () => {
             const reader = document.getElementById('view-reader');
             if (reader.classList.contains('hidden-view')) return;
@@ -490,7 +516,6 @@
             document.getElementById('progress-text').innerText = Math.round(Math.max(0, Math.min(100, scrolled))) + "% COMPLETED";
         });
 
-        // Bootstrap App
         load();
     </script>
 </body>
