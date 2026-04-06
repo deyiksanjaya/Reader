@@ -41,7 +41,7 @@
         .word-span { display: inline; cursor: text; }
         
         .target-preview { cursor: pointer; padding: 2px 4px; border-radius: 4px; border: 1px solid transparent; transition: all 0.2s; }
-        .selected-target { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
+        .selected-target { background-color: #fde047 !important; color: #000000 !important; border-color: #eab308 !important; }
 
         .hidden-view { display: none !important; }
         
@@ -49,7 +49,6 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
 
-        /* Navigasi blur */
         .bottom-nav-blur {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(25px);
@@ -91,7 +90,7 @@
         }
 
         .paypal-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.2s ease;
         }
         .paypal-btn:active {
             transform: scale(0.95);
@@ -119,7 +118,7 @@
         </header>
 
         <div class="grid grid-cols-2 gap-x-5 gap-y-8">
-            <!-- Buku Utama -->
+            <!-- Active Book (The Routine) -->
             <div class="flex flex-col cursor-pointer" onclick="openBook()">
                 <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-gray-200">
                     <img id="lib-cover-img" src="" class="w-full h-full object-cover hidden">
@@ -143,7 +142,7 @@
                 </div>
             </div>
 
-            <!-- Buku Palsu 1 -->
+            <!-- Mock Book 1 -->
             <div class="flex flex-col opacity-90 grayscale-[0.2]">
                 <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-white border border-gray-100 p-4">
                     <div class="h-full border border-gray-50 flex flex-col items-center justify-center text-center p-2">
@@ -164,7 +163,7 @@
                 </div>
             </div>
 
-            <!-- Buku Palsu 2 -->
+            <!-- Mock Book 2 -->
             <div class="flex flex-col">
                 <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-green-700 p-6 flex flex-col justify-between text-white">
                     <div class="border-2 border-white/20 p-4 text-center">
@@ -178,7 +177,7 @@
                 </div>
             </div>
 
-            <!-- Buku Palsu 3 -->
+            <!-- Mock Book 3 -->
             <div class="flex flex-col">
                 <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-gray-900">
                     <img src="https://images.unsplash.com/photo-1543004218-ee141104975a?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover opacity-50">
@@ -222,7 +221,7 @@
     <!-- VIEW: READER -->
     <div id="view-reader" class="hidden-view bg-white min-h-screen relative">
         <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-gray-50 z-50">
-            <div class="flex items-center gap-2 cursor-pointer text-blue-600 font-bold" onclick="closeBook()">
+            <div class="flex items-center gap-2 cursor-pointer text-gray-900 font-bold" onclick="closeBook()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
                 <span>Library</span>
             </div>
@@ -250,82 +249,84 @@
     <!-- VIEW: SETUP MODAL -->
     <div id="secret-settings" class="fixed inset-0 hidden-view overflow-y-auto pb-24 bg-white">
         <div class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex justify-between items-center z-20">
-            <h2 class="text-xl font-black italic uppercase tracking-tighter">Setup</h2>
-            <button onclick="toggleSettings()" class="bg-black text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest">Save</button>
+            <h2 class="text-xl font-black italic uppercase tracking-tighter text-gray-900">Setup</h2>
+            <button onclick="toggleSettings()" class="bg-gray-900 text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest">Save</button>
         </div>
 
         <div class="px-6 py-4 max-w-lg mx-auto">
+            
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Identity & Branding</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Identity & Branding</h3>
                     <div class="info-btn" onclick="toggleInfo('info-branding')">i</div>
                 </div>
-                <div id="info-branding" class="info-text">Book title and cover URL. Cover is only visible in Library grid.</div>
-                <div class="space-y-6">
-                    <input type="text" id="input-title" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:outline-none" placeholder="Book Title">
-                    <input type="text" id="input-img-url" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium focus:outline-none" placeholder="Cover Image URL">
+                <div id="info-branding" class="info-text">Set your book's identity. Cover is only visible in the Library grid.</div>
+                <div class="space-y-4">
+                    <input type="text" id="input-title" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none text-gray-900" placeholder="Book Title">
+                    <input type="text" id="input-img-url" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium outline-none text-gray-900" placeholder="Cover Image URL">
                 </div>
             </section>
 
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Book Content</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Book Content</h3>
                     <div class="info-btn" onclick="toggleInfo('info-content')">i</div>
                 </div>
                 <div id="info-content" class="info-text">Create the custom book content for your routine. Sync after changing.</div>
-                <!-- Textarea for the story. Value will be injected via JS -->
-                <textarea id="input-article" class="w-full h-64 p-5 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-serif leading-relaxed outline-none" placeholder="Type your story here..."></textarea>
-                <button onclick="updateData()" class="mt-4 w-full py-4 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Sync Words</button>
+                <textarea id="input-article" class="w-full h-64 p-5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-serif leading-relaxed outline-none text-gray-900" placeholder="Type your story here..."></textarea>
+                <button onclick="updateData()" class="mt-4 w-full py-4 bg-gray-200 text-gray-900 rounded-xl text-[10px] font-black uppercase tracking-widest">Sync Words</button>
             </section>
 
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Target Selection</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Target Selection</h3>
                     <div class="info-btn" onclick="toggleInfo('info-picker')">i</div>
                 </div>
                 <div id="info-picker" class="info-text">Select the precise word you want to force on the spectator.</div>
-                <div id="target-picker-area" class="p-6 border border-gray-200 rounded-2xl bg-gray-50 serif text-[21px] leading-relaxed text-justify space-y-10 text-gray-900 max-h-[400px] overflow-y-auto"></div>
-                <div class="mt-5 p-4 bg-blue-600 rounded-xl flex justify-between items-center text-white shadow-lg">
-                    <span class="text-[10px] font-black uppercase tracking-widest opacity-80">Target:</span>
+                <div id="target-picker-area" class="p-6 border border-gray-200 rounded-2xl bg-white serif text-[21px] leading-relaxed text-justify space-y-10 text-gray-900 max-h-[400px] overflow-y-auto">
+                    <!-- Word list injected here -->
+                </div>
+                <div class="mt-5 p-4 bg-gray-100 border border-gray-200 rounded-xl flex justify-between items-center text-gray-900">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Forced Target:</span>
                     <span id="selected-word-display" class="text-sm font-bold truncate">Random</span>
                 </div>
             </section>
 
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-widest text-blue-500">Mechanism Trigger</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Mechanism</h3>
                     <div class="info-btn" onclick="toggleInfo('info-trigger')">i</div>
                 </div>
                 <div id="info-trigger" class="info-text">Attempt #: choose When jump triggers. Delay: Seconds before jumping to the force word.</div>
                 <div class="space-y-4">
-                    <div class="flex justify-between items-center p-5 bg-gray-50 rounded-xl border border-gray-100">
-                        <span class="text-sm font-bold text-gray-700">Trigger on attempt #</span>
-                        <input type="number" id="input-threshold" value="1" min="1" class="w-16 p-2 bg-white border rounded text-center font-black text-blue-600 outline-none">
+                    <div class="flex justify-between items-center p-5 bg-gray-50 rounded-xl border border-gray-200">
+                        <span class="text-sm font-bold text-gray-900">Trigger on attempt #</span>
+                        <input type="number" id="input-threshold" value="1" min="1" class="w-16 p-2 bg-white border border-gray-300 rounded text-center font-black text-gray-900 outline-none">
                     </div>
-                    <div class="flex justify-between items-center p-5 bg-gray-50 rounded-xl border border-gray-100">
-                        <span class="text-sm font-bold text-gray-700">Jump Delay (Seconds)</span>
-                        <input type="number" id="input-delay" value="2" min="0" step="0.5" class="w-16 p-2 bg-white border rounded text-center font-black text-blue-600 outline-none">
+                    <div class="flex justify-between items-center p-5 bg-gray-50 rounded-xl border border-gray-200">
+                        <span class="text-sm font-bold text-gray-900">Jump Delay (Seconds)</span>
+                        <input type="number" id="input-delay" value="2" min="0" step="0.5" class="w-16 p-2 bg-white border border-gray-300 rounded text-center font-black text-gray-900 outline-none">
                     </div>
                 </div>
             </section>
 
-            <section class="py-16">
-                <div class="bg-gradient-to-br from-gray-50 to-blue-50/40 rounded-[2rem] p-10 border border-blue-100/50 text-center relative overflow-hidden">
-                    <h3 class="text-[9px] font-black uppercase tracking-[0.4em] text-blue-400 mb-6">About Me</h3>
+            <section class="py-12">
+                <div class="bg-gray-50 rounded-[2rem] p-8 border border-gray-100 text-center">
+                    <h3 class="text-[9px] font-black uppercase tracking-[0.4em] text-gray-400 mb-6">About Me</h3>
                     <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Concepted by</p>
                     <p class="text-lg font-black text-gray-900 serif italic mb-8">Heri Sanjaya</p>
-                    <div class="pt-8 border-t border-blue-100/60">
-                        <p class="text-[9px] font-black text-gray-400 uppercase mb-5 tracking-widest">Buy me a coffee</p>
-                        <a href="https://www.paypal.me/ighsss" target="_blank" class="inline-flex items-center gap-3 bg-white px-8 py-4 rounded-2xl border border-blue-100 shadow-sm active:scale-95 transition-all">
+                    <div class="pt-6 border-t border-gray-200">
+                        <p class="text-[9px] font-black text-gray-400 uppercase mb-4 tracking-widest">Buy me a coffee</p>
+                        <a href="https://www.paypal.me/ighsss" target="_blank" class="paypal-btn inline-flex items-center gap-3 bg-white px-8 py-4 rounded-2xl border border-gray-200 shadow-sm">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/PayPal_Logo_Icon_2014.svg" class="w-4 h-4" alt="PayPal">
-                            <span class="text-blue-900 font-bold text-xs">PayPal @ighsss</span>
+                            <span class="text-gray-900 font-bold text-xs">PayPal @ighsss</span>
                         </a>
                     </div>
                 </div>
             </section>
             
             <div class="text-center pb-20">
-                <button onclick="resetToDefault()" class="text-gray-300 text-[10px] font-black uppercase tracking-widest">Factory Reset</button>
+                <button onclick="resetToDefault()" class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Factory Reset</button>
             </div>
         </div>
     </div>
@@ -348,8 +349,8 @@
         let allSpans = [];
         let trickTimer = null;
         
-        // Ganti nama key local storage biar force reload data
-        const STORAGE_KEY = 'magic_reader_pro_stable_v4';
+        // FIXED Storage Key (Will not change in future prompts to prevent data loss)
+        const STORAGE_KEY = 'magic_reader_data';
 
         function toggleInfo(id) {
             const el = document.getElementById(id);
@@ -358,26 +359,42 @@
             if (!isVisible) el.style.display = 'block';
         }
 
-        function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(config)); }
+        function save() { 
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(config)); 
+        }
 
         function load() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) config = JSON.parse(saved);
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsedData = JSON.parse(saved);
+                    // Merge configuration to handle any older saved versions safely
+                    config = { ...config, ...parsedData };
+                }
+            } catch (e) { 
+                console.error("Error loading config:", e); 
+            }
             updateUI();
         }
 
         function updateUI() {
+            // Update Text Elements
             document.getElementById('lib-title-on-cover').innerText = config.title;
             document.getElementById('reader-title').innerText = config.title;
+            
+            // Update Images
             const libImg = document.getElementById('lib-cover-img');
             const defUI = document.getElementById('default-cover-ui');
             if (config.imgUrl && config.imgUrl.trim() !== "") {
-                libImg.src = config.imgUrl; libImg.classList.remove('hidden'); defUI.classList.add('hidden');
+                libImg.src = config.imgUrl; 
+                libImg.classList.remove('hidden'); 
+                defUI.classList.add('hidden');
             } else {
-                libImg.classList.add('hidden'); defUI.classList.remove('hidden');
+                libImg.classList.add('hidden'); 
+                defUI.classList.remove('hidden');
             }
             
-            // Set value input
+            // Set Input Values
             document.getElementById('input-title').value = config.title;
             document.getElementById('input-img-url').value = config.imgUrl;
             document.getElementById('input-article').value = config.content;
@@ -391,9 +408,13 @@
         function updateData() {
             config.title = document.getElementById('input-title').value || "Shadow Symphony";
             config.imgUrl = document.getElementById('input-img-url').value;
-            config.content = document.getElementById('input-article').value || DEFAULT_STORY;
+            
+            const articleInput = document.getElementById('input-article').value;
+            config.content = articleInput.trim() !== "" ? articleInput : DEFAULT_STORY;
+            
             config.threshold = parseInt(document.getElementById('input-threshold').value) || 1;
             config.delay = parseFloat(document.getElementById('input-delay').value) || 2;
+            
             save();
             updateUI();
         }
@@ -428,6 +449,7 @@
             const selectedText = (config.targetIndex === -1 || !allWords[config.targetIndex]) ? 'Random' : allWords[config.targetIndex];
             document.getElementById('selected-word-display').innerText = selectedText;
 
+            // Auto Scroll to target
             setTimeout(() => {
                 const selectedSpan = area.querySelector('.selected-target');
                 if (selectedSpan) {
@@ -469,17 +491,20 @@
         }
 
         function resetToDefault() {
-            if (confirm("Reset to factory settings?")) {
+            if (confirm("Reset to factory settings? All custom data will be lost.")) {
                 localStorage.removeItem(STORAGE_KEY);
                 location.reload();
             }
         }
 
+        // --- TRICK MECHANISM ---
         document.addEventListener('selectionchange', () => {
             if (document.getElementById('view-reader').classList.contains('hidden-view') || isJumping) return;
             const selection = window.getSelection();
             const text = selection.toString().trim();
+            
             if (trickTimer) { clearTimeout(trickTimer); trickTimer = null; }
+            
             if (text.length > 0) {
                 const delayMs = (config.delay || 2) * 1000;
                 trickTimer = setTimeout(() => {
@@ -487,6 +512,7 @@
                     if (highlightCount >= config.threshold) {
                         isJumping = true;
                         let target = (config.targetIndex !== -1 && allSpans[config.targetIndex]) ? allSpans[config.targetIndex] : allSpans[Math.floor(Math.random() * allSpans.length)];
+                        
                         if (target) {
                             const range = document.createRange();
                             range.selectNodeContents(target);
@@ -500,6 +526,7 @@
             }
         });
 
+        // 3x Tap Trigger
         document.getElementById('magic-trigger').addEventListener('click', () => {
             const now = Date.now();
             clickHistory.push(now);
@@ -516,6 +543,7 @@
             document.getElementById('progress-text').innerText = Math.round(Math.max(0, Math.min(100, scrolled))) + "% COMPLETED";
         });
 
+        // Start App
         load();
     </script>
 </body>
