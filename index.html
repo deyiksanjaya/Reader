@@ -14,6 +14,8 @@
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/a/ad/Apple_Books_iOS_26_icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Georgia&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         
@@ -38,22 +40,20 @@
             color: #000000;
         }
 
-        .word-span { display: inline; cursor: text; }
+        .word-span { display: inline; cursor: text; transition: background-color 0.2s; }
         
         .target-preview { cursor: pointer; padding: 2px 4px; border-radius: 4px; border: 1px solid transparent; transition: all 0.2s; }
-        .selected-target { background-color: #fde047 !important; color: #000000 !important; border-color: #eab308 !important; }
+        .selected-target { background-color: #3b82f6 !important; color: white !important; border-color: #2563eb !important; }
 
         .hidden-view { display: none !important; }
         
-        .book-shadow {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
+        .book-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+        .nav-pill-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
 
         .bottom-nav-blur {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         #secret-settings {
@@ -71,7 +71,6 @@
             border-radius: 50%;
             border: 1px solid #cbd5e1;
             font-size: 10px;
-            font-weight: 800;
             color: #94a3b8;
             cursor: pointer;
         }
@@ -89,158 +88,195 @@
             border: 1px solid #f1f5f9;
         }
 
-        .paypal-btn {
-            transition: transform 0.2s ease;
+        .paypal-btn { transition: transform 0.2s ease; }
+        .paypal-btn:active { transform: scale(0.95); }
+
+        #target-picker-area { scroll-behavior: smooth; }
+
+        /* Canvas Annotation Styling */
+        #annotation-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
         }
-        .paypal-btn:active {
-            transform: scale(0.95);
+        
+        .draw-mode-pen #annotation-canvas {
+            pointer-events: auto;
+            cursor: crosshair;
         }
 
-        #target-picker-area {
-            scroll-behavior: smooth;
+        #reader-title {
+            transition: opacity 0.2s;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50/50">
 
     <!-- VIEW: LIBRARY -->
-    <div id="view-library" class="min-h-screen px-5 pt-8 pb-32 max-w-lg mx-auto">
-        <header class="flex justify-between items-center mb-8">
-            <h1 class="text-4xl font-extrabold tracking-tight">Library</h1>
+    <div id="view-library" class="min-h-screen px-4 pt-12 pb-32 max-w-lg mx-auto">
+        <header class="flex justify-between items-center mb-8 px-2">
+            <h1 class="serif text-4xl font-extrabold tracking-tight">Library</h1>
             <div class="flex gap-2">
-                <button class="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-full border border-gray-100 shadow-sm">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                <button class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full border border-gray-100 shadow-sm text-xl text-gray-900">
+                    <i class="ph ph-list"></i>
                 </button>
-                <button class="w-12 h-12 flex items-center justify-center bg-gray-50 rounded-full border border-gray-100 shadow-sm text-gray-400">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                <button class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full border border-gray-100 shadow-sm text-xl text-gray-900">
+                    <i class="ph ph-dots-three-circle"></i>
                 </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-2 gap-x-5 gap-y-8">
-            <!-- Active Book (The Routine) -->
+        <div class="grid grid-cols-2 gap-x-4 gap-y-8 px-2">
+            <!-- Active Book -->
             <div class="flex flex-col cursor-pointer" onclick="openBook()">
-                <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-gray-200">
+                <div class="relative aspect-[2/3] rounded-md overflow-hidden book-shadow mb-2 bg-[#7fd762]">
                     <img id="lib-cover-img" src="" class="w-full h-full object-cover hidden">
-                    <div id="default-cover-ui" class="w-full h-full bg-slate-800 p-4 flex flex-col justify-between text-white">
-                        <div>
-                            <h2 id="lib-title-on-cover" class="serif text-lg font-bold leading-tight"></h2>
-                            <p class="text-[9px] opacity-60 uppercase mt-1 font-bold">Digital Edition</p>
+                    <div id="default-cover-ui" class="w-full h-full p-4 flex flex-col items-center justify-center text-white relative">
+                        <div class="absolute top-4 left-4 right-4">
+                            <h2 id="lib-title-on-cover" class="font-bold text-lg leading-tight text-white tracking-tight">Frankenstein</h2>
+                            <p class="text-sm font-black text-gray-900 tracking-tight">Mary Shelley</p>
                         </div>
-                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-                            <div class="w-2 h-2 rounded-full bg-white"></div>
+                        <div class="w-32 h-32 bg-white mt-10 rounded-xl transform rotate-45 flex items-center justify-center overflow-hidden">
+                            <div class="w-28 h-28 transform -rotate-45 rounded-full border-8 border-gray-100 bg-gray-900 flex items-center justify-center">
+                                <div class="w-10 h-10 bg-black rounded-full"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-between items-start px-0.5">
-                    <div>
-                        <span class="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">Sample</span>
-                    </div>
-                    <button class="text-gray-300">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-                    </button>
+                <div class="flex justify-between items-center px-1 mt-1">
+                    <span class="bg-[#ba5950] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">SAMPLE</span>
+                    <i class="ph-bold ph-dots-three text-gray-400 text-lg"></i>
                 </div>
             </div>
 
-            <!-- Mock Book 1 -->
-            <div class="flex flex-col opacity-90 grayscale-[0.2]">
-                <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-white border border-gray-100 p-4">
-                    <div class="h-full border border-gray-50 flex flex-col items-center justify-center text-center p-2">
-                        <p class="text-[8px] text-gray-400 mb-2 uppercase tracking-widest">Copyright © 2026</p>
-                        <h2 class="serif text-xl font-bold italic mb-4">Agory</h2>
-                        <div class="w-full space-y-1 opacity-20">
-                            <div class="h-0.5 bg-gray-400 w-full"></div>
-                            <div class="h-0.5 bg-gray-400 w-3/4 mx-auto"></div>
+            <!-- Mock Books -->
+            <div class="flex flex-col opacity-95 grayscale-[0.1]">
+                <div class="relative aspect-[2/3] rounded-md overflow-hidden book-shadow mb-2 bg-white border border-gray-100 p-4">
+                    <div class="h-full flex flex-col items-center text-center p-2">
+                        <p class="text-[6px] text-gray-600 mb-4 mt-2">Copyright © 2024 by Fraser Parker</p>
+                        <h2 class="serif text-xl font-bold italic mb-4 tracking-tighter">Agory</h2>
+                        <div class="w-full text-[4px] leading-tight text-justify text-gray-400 space-y-2 opacity-60">
+                            <p>The following method allows you to guess the date of birth of a spectator entirely prop-less...</p>
+                            <p>I feel this is the most streamline version of this type of plot...</p>
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-between items-center px-0.5">
-                    <p class="text-[11px] text-gray-400 font-bold uppercase tracking-tighter">Finished</p>
-                    <div class="flex items-center gap-2 text-gray-300">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19c.703 0 1.332-.31 1.761-.806m-9.022-2.194a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5z"/></svg>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                <div class="flex justify-between items-center px-1 mt-1">
+                    <p class="text-xs text-gray-500">Finished</p>
+                    <div class="flex items-center gap-1 text-gray-400">
+                        <i class="ph ph-cloud-arrow-down text-lg"></i>
+                        <i class="ph-bold ph-dots-three text-lg"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- Mock Book 2 -->
             <div class="flex flex-col">
-                <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-green-700 p-6 flex flex-col justify-between text-white">
-                    <div class="border-2 border-white/20 p-4 text-center">
-                        <h2 class="text-lg font-black tracking-widest uppercase">Getting Cold</h2>
+                <div class="relative aspect-[2/3] rounded-md overflow-hidden book-shadow mb-2 bg-[#397645] p-5 flex flex-col justify-between text-white border border-[#2b5934]">
+                    <div class="text-center mt-6">
+                        <h2 class="text-xl font-normal tracking-wide uppercase leading-tight">GETTING<br>COLD</h2>
                     </div>
-                    <p class="text-xs font-medium opacity-50">Unknown Author</p>
+                    <p class="text-sm font-normal text-center mb-2">Unknown Author</p>
                 </div>
-                <div class="flex justify-between items-center px-0.5 text-gray-400">
-                    <p class="text-[11px] font-bold uppercase tracking-tighter">96%</p>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                <div class="flex justify-between items-center px-1 mt-1 text-gray-500">
+                    <p class="text-xs">96%</p>
+                    <div class="flex items-center gap-1 text-gray-400">
+                        <i class="ph ph-cloud-arrow-down text-lg"></i>
+                        <i class="ph-bold ph-dots-three text-lg"></i>
+                    </div>
                 </div>
             </div>
 
-            <!-- Mock Book 3 -->
             <div class="flex flex-col">
-                <div class="relative aspect-[2/3] rounded-lg overflow-hidden book-shadow mb-3 bg-gray-900">
-                    <img src="https://images.unsplash.com/photo-1543004218-ee141104975a?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover opacity-50">
+                <div class="relative aspect-[2/3] rounded-md overflow-hidden book-shadow mb-2 bg-gray-900">
+                    <img src="https://images.unsplash.com/photo-1543004218-ee141104975a?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover opacity-60">
                     <div class="absolute inset-0 p-4 flex flex-col justify-center items-center text-center text-white">
-                        <p class="text-[8px] tracking-[0.2em] uppercase mb-1 opacity-70">Based on True Events</p>
-                        <h2 class="serif text-2xl font-black text-yellow-400 tracking-tighter">THE MIRAGE</h2>
+                        <h2 class="text-4xl font-black text-[#e8d56b] tracking-tighter leading-none mb-2">THE<br>MIRAGE</h2>
+                        <p class="text-[7px] tracking-[0.2em] uppercase font-bold opacity-80 mt-2">Based on True Events</p>
+                        <p class="text-[10px] font-bold absolute bottom-6">Elizabeth Middleton</p>
                     </div>
                 </div>
-                <div class="flex justify-between items-center px-0.5">
-                    <span class="bg-blue-800 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">New</span>
-                    <button class="text-gray-300">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-                    </button>
+                <div class="flex justify-between items-center px-1 mt-1">
+                    <span class="bg-[#2a4e81] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">NEW</span>
+                    <div class="flex items-center gap-1 text-gray-400">
+                        <i class="ph ph-cloud-arrow-down text-lg"></i>
+                        <i class="ph-bold ph-dots-three text-lg"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Floating Nav -->
-        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-sm h-16 bottom-nav-blur rounded-full flex items-center justify-between px-2 z-50 shadow-2xl">
-            <div class="flex-1 flex justify-around items-center pr-12 text-gray-400">
-                <div class="flex flex-col items-center gap-1">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-                    <span class="text-[9px] font-bold uppercase tracking-tighter">Home</span>
+        <!-- Floating Bottom Nav -->
+        <div class="fixed bottom-6 left-0 w-full px-4 flex justify-center items-center gap-2 z-50">
+            <nav class="flex-1 max-w-[280px] bg-[#f0f0f2]/90 backdrop-blur-xl rounded-[2rem] flex items-center justify-around py-3 px-2 shadow-lg border border-white/50">
+                <div class="flex flex-col items-center gap-0.5 text-gray-800">
+                    <i class="ph-fill ph-house text-2xl"></i>
+                    <span class="text-[8px] font-bold">Home</span>
                 </div>
-                <div class="flex flex-col items-center gap-1 text-black">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5z"/></svg>
-                    <span class="text-[9px] font-bold uppercase tracking-tighter">Library</span>
+                <div class="flex flex-col items-center gap-0.5 bg-gray-300/40 px-3 py-1 rounded-xl text-gray-900">
+                    <i class="ph-fill ph-books text-2xl"></i>
+                    <span class="text-[8px] font-bold">Library</span>
                 </div>
-                <div class="flex flex-col items-center gap-1">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-                    <span class="text-[9px] font-bold uppercase tracking-tighter">Store</span>
+                <div class="flex flex-col items-center gap-0.5 text-gray-800">
+                    <i class="ph-fill ph-shopping-bag text-2xl"></i>
+                    <span class="text-[8px] font-bold">Book Store</span>
                 </div>
-            </div>
-            <!-- Magic Trigger -->
-            <button id="magic-trigger" class="absolute right-1 w-14 h-14 bg-white border border-gray-100 rounded-full shadow-lg flex items-center justify-center text-gray-950 active:scale-90 transition-transform">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <div class="flex flex-col items-center gap-0.5 text-gray-800">
+                    <i class="ph-fill ph-storefront text-2xl"></i>
+                    <span class="text-[8px] font-bold">Manga Store</span>
+                </div>
+            </nav>
+            
+            <button id="magic-trigger" class="w-[60px] h-[60px] bg-[#f0f0f2]/90 backdrop-blur-xl border border-white/50 rounded-[2rem] shadow-lg flex items-center justify-center text-gray-900 active:scale-90 transition-transform">
+                <i class="ph-bold ph-magnifying-glass text-2xl"></i>
             </button>
-        </nav>
+        </div>
     </div>
 
     <!-- VIEW: READER -->
     <div id="view-reader" class="hidden-view bg-white min-h-screen relative">
-        <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b border-gray-50 z-50">
-            <div class="flex items-center gap-2 cursor-pointer text-gray-900 font-bold" onclick="closeBook()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
-                <span>Library</span>
+        <div id="reader-nav" class="fixed top-12 left-0 w-full px-5 flex justify-between items-center z-50 pointer-events-none">
+            <div class="flex items-center gap-6 bg-white/95 backdrop-blur-xl rounded-[2rem] px-5 py-3 pointer-events-auto nav-pill-shadow border border-gray-100">
+                <button onclick="closeBook()" class="text-gray-900 active:scale-90 transition-transform"><i class="ph-bold ph-caret-left text-xl"></i></button>
+                <button class="text-gray-900"><i class="ph-bold ph-list-dashes text-2xl"></i></button>
             </div>
-            <div class="flex items-center gap-6 text-gray-400">
-                <span class="text-lg font-bold text-black select-none">Aa</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            
+            <div class="flex items-center gap-6 bg-white/95 backdrop-blur-xl rounded-[2rem] px-5 py-3 pointer-events-auto nav-pill-shadow border border-gray-100 relative">
+                <button id="btn-draw-toggle" onclick="toggleDrawMode()" class="text-gray-900 active:scale-90 transition-all">
+                    <i class="ph ph-pencil-circle text-[28px]"></i>
+                </button>
+                <button class="text-gray-900 font-medium text-lg leading-none pt-0.5">Aa</button>
+                <button class="text-gray-900"><i class="ph-bold ph-magnifying-glass text-xl"></i></button>
+                <button class="text-gray-900"><i class="ph-bold ph-bookmark-simple text-xl"></i></button>
+                
+                <!-- Drawing Tools Popup -->
+                <div id="draw-tools-popup" class="hidden-view absolute -bottom-14 left-0 bg-white/95 backdrop-blur-xl border border-gray-100 px-4 py-2 rounded-[1rem] shadow-lg flex items-center gap-4 transition-opacity">
+                    <button onclick="undoStroke()" class="text-gray-700 active:text-gray-900 active:scale-90 transition-all"><i class="ph-bold ph-arrow-u-up-left text-xl"></i></button>
+                    <div class="w-px h-5 bg-gray-200"></div>
+                    <button onclick="redoStroke()" class="text-gray-700 active:text-gray-900 active:scale-90 transition-all"><i class="ph-bold ph-arrow-u-up-right text-xl"></i></button>
+                    <div class="w-px h-5 bg-gray-200"></div>
+                    <button onclick="clearCanvas()" class="text-red-500 active:text-red-700 active:scale-90 transition-all"><i class="ph-bold ph-trash text-xl"></i></button>
+                </div>
             </div>
-        </nav>
+        </div>
 
-        <main class="max-w-xl mx-auto px-7 pt-28 pb-44">
-            <header class="mb-14 text-center">
-                <p class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-bold mb-4">Chapter One</p>
-                <h1 id="reader-title" class="serif text-4xl font-bold text-gray-950 leading-tight"></h1>
-                <div class="w-10 h-0.5 bg-gray-100 mx-auto mt-10"></div>
-            </header>
-            <article id="reader-content" class="serif text-[21px] leading-relaxed text-justify space-y-10 text-gray-900"></article>
-        </main>
+        <div id="reader-container" class="relative w-full min-h-screen">
+            <main class="max-w-xl mx-auto px-7 pt-36 pb-44">
+                <!-- Tambah z-index biar judul ga ketutup sama layer canvas pas mau nge-peek -->
+                <header class="mb-14 text-center relative z-20">
+                    <p class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-bold mb-4">Chapter One</p>
+                    <h1 id="reader-title" class="serif text-4xl font-bold text-gray-950 leading-tight cursor-pointer select-none"></h1>
+                    <div class="w-10 h-0.5 bg-gray-100 mx-auto mt-10"></div>
+                </header>
+                <article id="reader-content" class="serif text-[21px] leading-relaxed text-justify space-y-10 text-gray-900"></article>
+            </main>
+            <canvas id="annotation-canvas"></canvas>
+        </div>
 
-        <footer class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-50 px-6 py-6 flex justify-between items-center z-50">
+        <footer id="reader-footer" class="fixed bottom-0 left-0 w-full bg-white px-6 py-6 flex justify-between items-center z-50">
             <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest"><span id="progress-text">0% COMPLETED</span></div>
             <div class="text-[10px] font-bold text-gray-300 uppercase tracking-widest"><span>Page 1</span></div>
         </footer>
@@ -250,7 +286,7 @@
     <div id="secret-settings" class="fixed inset-0 hidden-view overflow-y-auto pb-24 bg-white">
         <div class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex justify-between items-center z-20">
             <h2 class="text-xl font-black italic uppercase tracking-tighter text-gray-900">Setup</h2>
-            <button onclick="toggleSettings()" class="bg-gray-900 text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest">Save</button>
+            <button onclick="toggleSettings()" class="bg-gray-900 text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest active:scale-95 transition-transform">Save</button>
         </div>
 
         <div class="px-6 py-4 max-w-lg mx-auto">
@@ -258,7 +294,7 @@
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Identity & Branding</h3>
-                    <div class="info-btn" onclick="toggleInfo('info-branding')">i</div>
+                    <div class="info-btn" onclick="toggleInfo('info-branding')"><i class="ph-bold ph-info"></i></div>
                 </div>
                 <div id="info-branding" class="info-text">Set your book's identity. Cover is only visible in the Library grid.</div>
                 <div class="space-y-4">
@@ -270,17 +306,17 @@
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Book Content</h3>
-                    <div class="info-btn" onclick="toggleInfo('info-content')">i</div>
+                    <div class="info-btn" onclick="toggleInfo('info-content')"><i class="ph-bold ph-info"></i></div>
                 </div>
                 <div id="info-content" class="info-text">Create the custom book content for your routine. Sync after changing.</div>
                 <textarea id="input-article" class="w-full h-64 p-5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-serif leading-relaxed outline-none text-gray-900" placeholder="Type your story here..."></textarea>
-                <button onclick="updateData()" class="mt-4 w-full py-4 bg-gray-200 text-gray-900 rounded-xl text-[10px] font-black uppercase tracking-widest">Sync Words</button>
+                <button onclick="updateData()" class="mt-4 w-full py-4 bg-gray-200 text-gray-900 rounded-xl text-[10px] font-black uppercase tracking-widest active:bg-gray-300 transition-colors">Sync Words</button>
             </section>
 
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Target Selection</h3>
-                    <div class="info-btn" onclick="toggleInfo('info-picker')">i</div>
+                    <div class="info-btn" onclick="toggleInfo('info-picker')"><i class="ph-bold ph-info"></i></div>
                 </div>
                 <div id="info-picker" class="info-text">Select the precise word you want to force on the spectator.</div>
                 <div id="target-picker-area" class="p-6 border border-gray-200 rounded-2xl bg-white serif text-[21px] leading-relaxed text-justify space-y-10 text-gray-900 max-h-[400px] overflow-y-auto">
@@ -295,7 +331,7 @@
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Mechanism</h3>
-                    <div class="info-btn" onclick="toggleInfo('info-trigger')">i</div>
+                    <div class="info-btn" onclick="toggleInfo('info-trigger')"><i class="ph-bold ph-info"></i></div>
                 </div>
                 <div id="info-trigger" class="info-text">Attempt #: choose When jump triggers. Delay: Seconds before jumping to the force word.</div>
                 <div class="space-y-4">
@@ -318,7 +354,7 @@
                     <div class="pt-6 border-t border-gray-200">
                         <p class="text-[9px] font-black text-gray-400 uppercase mb-4 tracking-widest">Buy me a coffee</p>
                         <a href="https://www.paypal.me/ighsss" target="_blank" class="paypal-btn inline-flex items-center gap-3 bg-white px-8 py-4 rounded-2xl border border-gray-200 shadow-sm">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/PayPal_Logo_Icon_2014.svg" class="w-4 h-4" alt="PayPal">
+                            <i class="ph-fill ph-paypal-logo text-blue-800 text-lg"></i>
                             <span class="text-gray-900 font-bold text-xs">PayPal @ighsss</span>
                         </a>
                     </div>
@@ -335,12 +371,14 @@
         const DEFAULT_STORY = `There is something in these words that refuses to stay still. Beyond the veil of mist that shrouds our memories, there is a truth that continues to pulse. Have you ever wondered where the words go when they are left unspoken? They do not vanish; they only wait for someone to touch them in the right way.\n\nThe digital world is a strange labyrinth. We think of it as a collection of cold codes, when in fact it is a mirror of our collective consciousness. Every time you move your finger across this screen, you are tracing a labyrinth of emotions that were planted long before this device was built.\n\nLook closely. You feel certain that you are the one in control of what you see. You can mark a sentence, save it in memory, or share it with the world. However, in the reality we inhabit now, control is only a thin blanket covering a vast uncertainty.\n\nNever underestimate the power of a pause. A few seconds may feel like a short time to the always-hurrying human mind, but for a word, those seconds are enough time to plan an escape. Think of it as the world's way of reminding you that magic still exists, even in the most unexpected places.`;
 
         let config = {
-            title: "Shadow Symphony",
+            title: "Frankenstein",
             content: DEFAULT_STORY,
-            imgUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1000&auto=format&fit=crop",
+            imgUrl: "",
             targetIndex: -1,
             threshold: 1,
-            delay: 2
+            delay: 2,
+            strokes: [],
+            rememberedWord: "" 
         };
 
         let highlightCount = 0;
@@ -348,9 +386,16 @@
         let clickHistory = [];
         let allSpans = [];
         let trickTimer = null;
+        let titleTimeout = null;
         
-        // FIXED Storage Key (Will not change in future prompts to prevent data loss)
         const STORAGE_KEY = 'magic_reader_data';
+
+        const canvas = document.getElementById('annotation-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawingMode = false;
+        let isPenDown = false;
+        let currentStroke = null;
+        let redoStack = [];
 
         function toggleInfo(id) {
             const el = document.getElementById(id);
@@ -368,21 +413,18 @@
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     const parsedData = JSON.parse(saved);
-                    // Merge configuration to handle any older saved versions safely
                     config = { ...config, ...parsedData };
+                    if (!config.strokes) config.strokes = [];
+                    if (!config.rememberedWord) config.rememberedWord = "";
                 }
-            } catch (e) { 
-                console.error("Error loading config:", e); 
-            }
+            } catch (e) { console.error("Error loading config:", e); }
             updateUI();
         }
 
         function updateUI() {
-            // Update Text Elements
             document.getElementById('lib-title-on-cover').innerText = config.title;
             document.getElementById('reader-title').innerText = config.title;
             
-            // Update Images
             const libImg = document.getElementById('lib-cover-img');
             const defUI = document.getElementById('default-cover-ui');
             if (config.imgUrl && config.imgUrl.trim() !== "") {
@@ -394,7 +436,6 @@
                 defUI.classList.remove('hidden');
             }
             
-            // Set Input Values
             document.getElementById('input-title').value = config.title;
             document.getElementById('input-img-url').value = config.imgUrl;
             document.getElementById('input-article').value = config.content;
@@ -406,15 +447,12 @@
         }
 
         function updateData() {
-            config.title = document.getElementById('input-title').value || "Shadow Symphony";
+            config.title = document.getElementById('input-title').value || "Frankenstein";
             config.imgUrl = document.getElementById('input-img-url').value;
-            
             const articleInput = document.getElementById('input-article').value;
             config.content = articleInput.trim() !== "" ? articleInput : DEFAULT_STORY;
-            
             config.threshold = parseInt(document.getElementById('input-threshold').value) || 1;
             config.delay = parseFloat(document.getElementById('input-delay').value) || 2;
-            
             save();
             updateUI();
         }
@@ -427,6 +465,8 @@
             }).join('');
             document.getElementById('reader-content').innerHTML = html;
             allSpans = document.querySelectorAll('#reader-content .word-span');
+            
+            setTimeout(resizeCanvas, 150);
         }
 
         function renderPicker() {
@@ -449,7 +489,6 @@
             const selectedText = (config.targetIndex === -1 || !allWords[config.targetIndex]) ? 'Random' : allWords[config.targetIndex];
             document.getElementById('selected-word-display').innerText = selectedText;
 
-            // Auto Scroll to target
             setTimeout(() => {
                 const selectedSpan = area.querySelector('.selected-target');
                 if (selectedSpan) {
@@ -483,23 +522,234 @@
             document.getElementById('view-library').classList.add('hidden-view');
             document.getElementById('view-reader').classList.remove('hidden-view');
             window.scrollTo(0, 0);
+            
+            if(isDrawingMode) toggleDrawMode();
+            resizeCanvas();
         }
 
         function closeBook() {
             document.getElementById('view-reader').classList.add('hidden-view');
             document.getElementById('view-library').classList.remove('hidden-view');
+            if (trickTimer) clearTimeout(trickTimer);
+            if (titleTimeout) clearTimeout(titleTimeout);
         }
 
         function resetToDefault() {
-            if (confirm("Reset to factory settings? All custom data will be lost.")) {
+            if (confirm("Reset to factory settings? All custom data and drawings will be lost.")) {
                 localStorage.removeItem(STORAGE_KEY);
                 location.reload();
             }
         }
 
-        // --- TRICK MECHANISM ---
+        // --- TITLE PEEK LOGIC ---
+        document.getElementById('reader-title').addEventListener('click', function() {
+            if (config.rememberedWord && config.rememberedWord.trim() !== "") {
+                if (titleTimeout) clearTimeout(titleTimeout);
+                
+                this.innerText = config.rememberedWord;
+                
+                titleTimeout = setTimeout(() => {
+                    this.innerText = config.title;
+                }, 1500);
+            }
+        });
+
+        // --- DRAWING ENGINE ---
+        function updateDrawToolsVisibility() {
+            const toolsPopup = document.getElementById('draw-tools-popup');
+            if (isDrawingMode && (config.strokes.length > 0 || redoStack.length > 0)) {
+                toolsPopup.classList.remove('hidden-view');
+            } else {
+                toolsPopup.classList.add('hidden-view');
+            }
+        }
+
+        function toggleDrawMode() {
+            isDrawingMode = !isDrawingMode;
+            const container = document.getElementById('reader-container');
+            const btnDraw = document.getElementById('btn-draw-toggle');
+            
+            if(isDrawingMode) {
+                container.classList.add('draw-mode-pen');
+                btnDraw.classList.add('text-blue-500');
+            } else {
+                container.classList.remove('draw-mode-pen');
+                btnDraw.classList.remove('text-blue-500');
+            }
+            updateDrawToolsVisibility();
+        }
+
+        function resizeCanvas() {
+            const container = document.getElementById('reader-container');
+            if(!container) return;
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight; 
+            redrawCanvas();
+        }
+
+        function redrawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if(config.strokes && config.strokes.length > 0) {
+                config.strokes.forEach(stroke => drawStroke(stroke));
+            }
+        }
+
+        function drawStroke(stroke) {
+            if (!stroke.points || stroke.points.length === 0) return;
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255, 69, 58, 0.7)'; 
+            ctx.lineWidth = 4; 
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            stroke.points.forEach((p, i) => {
+                if (i === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            });
+            ctx.stroke();
+        }
+
+        function undoStroke() {
+            if (config.strokes && config.strokes.length > 0) {
+                const stroke = config.strokes.pop();
+                redoStack.push(stroke);
+                save();
+                redrawCanvas();
+                processIntersections();
+            }
+            updateDrawToolsVisibility();
+        }
+
+        function redoStroke() {
+            if (redoStack.length > 0) {
+                const stroke = redoStack.pop();
+                if (!config.strokes) config.strokes = [];
+                config.strokes.push(stroke);
+                save();
+                redrawCanvas();
+                processIntersections();
+            }
+            updateDrawToolsVisibility();
+        }
+
+        function clearCanvas() {
+            config.strokes = [];
+            redoStack = [];
+            save();
+            redrawCanvas();
+            updateDrawToolsVisibility();
+        }
+
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+            const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top,
+                clientX: clientX,
+                clientY: clientY
+            };
+        }
+
+        const startDraw = (e) => {
+            if (!isDrawingMode) return;
+            isPenDown = true;
+            const pos = getMousePos(e);
+            currentStroke = { points: [pos] };
+        };
+
+        const drawingAction = (e) => {
+            if (!isPenDown || !isDrawingMode) return;
+            e.preventDefault(); 
+            const pos = getMousePos(e);
+            currentStroke.points.push(pos);
+            redrawCanvas();
+            drawStroke(currentStroke);
+        };
+
+        const stopDraw = () => {
+            if (!isPenDown) return;
+            isPenDown = false;
+            if(currentStroke.points.length > 1) {
+                if(!config.strokes) config.strokes = [];
+                config.strokes.push(currentStroke);
+                redoStack = []; 
+                save();
+                processIntersections();
+            }
+            currentStroke = null;
+            updateDrawToolsVisibility();
+        };
+
+        // --- MATH: INTERSECTION LOGIC ---
+        function getIntersection(p1, p2, p3, p4) {
+            const denominator = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
+            if (denominator === 0) return null; 
+
+            const ua = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x)) / denominator;
+            const ub = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) / denominator;
+
+            if (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1) {
+                return {
+                    x: p1.x + ua * (p2.x - p1.x),
+                    y: p1.y + ua * (p2.y - p1.y),
+                    clientX: p1.clientX + ua * (p2.clientX - p1.clientX),
+                    clientY: p1.clientY + ua * (p2.clientY - p1.clientY)
+                };
+            }
+            return null;
+        }
+
+        function processIntersections() {
+            let foundIntersections = [];
+
+            if (!config.strokes || config.strokes.length < 2) return;
+
+            for (let i = 0; i < config.strokes.length; i++) {
+                for (let j = i + 1; j < config.strokes.length; j++) {
+                    const strokeA = config.strokes[i].points;
+                    const strokeB = config.strokes[j].points;
+
+                    for (let a = 0; a < strokeA.length - 1; a++) {
+                        for (let b = 0; b < strokeB.length - 1; b++) {
+                            const intersection = getIntersection(
+                                strokeA[a], strokeA[a+1], 
+                                strokeB[b], strokeB[b+1]
+                            );
+                            if (intersection) foundIntersections.push(intersection);
+                        }
+                    }
+                }
+            }
+
+            if (foundIntersections.length > 0) {
+                const point = foundIntersections[foundIntersections.length - 1];
+                
+                allSpans.forEach((span) => {
+                    const rect = span.getBoundingClientRect();
+                    if (point.clientX >= rect.left && point.clientX <= rect.right &&
+                        point.clientY >= rect.top && point.clientY <= rect.bottom) {
+                        
+                        config.rememberedWord = span.innerText.replace(/[^a-zA-Z0-9]/g, ''); 
+                        save();
+                    }
+                });
+            }
+        }
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', drawingAction);
+        window.addEventListener('mouseup', stopDraw);
+        
+        canvas.addEventListener('touchstart', startDraw, {passive: false});
+        canvas.addEventListener('touchmove', drawingAction, {passive: false});
+        window.addEventListener('touchend', stopDraw);
+
+        // --- FORCING MECHANISM ---
         document.addEventListener('selectionchange', () => {
-            if (document.getElementById('view-reader').classList.contains('hidden-view') || isJumping) return;
+            if (document.getElementById('view-reader').classList.contains('hidden-view') || isDrawingMode || isJumping) return;
+            
             const selection = window.getSelection();
             const text = selection.toString().trim();
             
@@ -536,14 +786,15 @@
 
         window.addEventListener('scroll', () => {
             const reader = document.getElementById('view-reader');
-            if (reader.classList.contains('hidden-view')) return;
+            if (reader.classList.contains('hidden-view') || isDrawingMode) return;
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const scrollTotal = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             let scrolled = scrollTotal > 0 ? (scrollTop / scrollTotal) * 100 : 100;
             document.getElementById('progress-text').innerText = Math.round(Math.max(0, Math.min(100, scrolled))) + "% COMPLETED";
         });
+        
+        window.addEventListener('resize', resizeCanvas);
 
-        // Start App
         load();
     </script>
 </body>
