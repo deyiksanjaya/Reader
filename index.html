@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Books</title>
     
     <!-- WebApp Meta Tags -->
@@ -117,8 +117,8 @@
 <body class="bg-gray-50/50">
 
     <!-- VIEW: LIBRARY -->
-    <div id="view-library" class="min-h-screen px-4 pt-6 pb-32 max-w-lg mx-auto">
-        <header class="flex justify-between items-center mb-8 px-2">
+    <div id="view-library" class="min-h-screen px-4 pb-32 max-w-lg mx-auto" style="padding-top: max(0.5rem, env(safe-area-inset-top));">
+        <header class="flex justify-between items-center mb-6 px-2">
             <h1 class="serif text-4xl font-extrabold tracking-tight">Library</h1>
             <div class="flex gap-2">
                 <button class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-full border border-gray-100 shadow-sm text-xl text-gray-900">
@@ -238,7 +238,7 @@
 
     <!-- VIEW: READER -->
     <div id="view-reader" class="hidden-view bg-white min-h-screen relative">
-        <div id="reader-nav" class="fixed top-6 left-0 w-full px-5 flex justify-between items-center z-50 pointer-events-none">
+        <div id="reader-nav" class="fixed left-0 w-full px-5 flex justify-between items-center z-50 pointer-events-none" style="top: max(0.5rem, env(safe-area-inset-top));">
             <div class="flex items-center gap-6 bg-white/95 backdrop-blur-xl rounded-[2rem] px-5 py-3 pointer-events-auto nav-pill-shadow border border-gray-100">
                 <button onclick="closeBook()" class="text-gray-900 active:scale-90 transition-transform"><i class="ph-bold ph-caret-left text-xl"></i></button>
                 <button class="text-gray-900"><i class="ph-bold ph-list-dashes text-2xl"></i></button>
@@ -264,7 +264,7 @@
         </div>
 
         <div id="reader-container" class="relative w-full min-h-screen">
-            <main class="max-w-xl mx-auto px-7 pt-28 pb-44">
+            <main class="max-w-xl mx-auto px-7 pb-44" style="padding-top: calc(4.5rem + env(safe-area-inset-top));">
                 <header class="mb-14 text-center relative z-20">
                     <p class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-bold mb-4">Chapter One</p>
                     <h1 id="reader-title" class="serif text-4xl font-bold text-gray-950 leading-tight cursor-pointer select-none"></h1>
@@ -283,7 +283,7 @@
 
     <!-- VIEW: SETUP MODAL -->
     <div id="secret-settings" class="fixed inset-0 hidden-view overflow-y-auto pb-24 bg-white">
-        <div class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex justify-between items-center z-20">
+        <div class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex justify-between items-center z-20" style="padding-top: max(1rem, env(safe-area-inset-top));">
             <h2 class="text-xl font-black italic uppercase tracking-tighter text-gray-900">Setup</h2>
             <button onclick="toggleSettings()" class="bg-gray-900 text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest active:scale-95 transition-transform">Save</button>
         </div>
