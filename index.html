@@ -108,6 +108,13 @@
             pointer-events: auto;
             cursor: crosshair;
         }
+        
+        /* Disabled section styling */
+        .section-disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
     </style>
 </head>
 <body class="bg-gray-50/50">
@@ -214,7 +221,7 @@
                     <i class="ph-fill ph-house text-2xl"></i>
                     <span class="text-[8px] font-bold">Home</span>
                 </div>
-                <!-- INI AREA PEEK NYA -->
+                <!-- AREA PEEK -->
                 <div class="flex flex-col items-center gap-0.5 bg-gray-300/40 px-3 py-1 rounded-xl text-gray-900">
                     <i class="ph-fill ph-books text-2xl"></i>
                     <span id="nav-library-text" class="text-[8px] font-bold max-w-[60px] truncate text-center transition-all">Library</span>
@@ -288,6 +295,26 @@
         </div>
 
         <div class="px-6 py-4 max-w-lg mx-auto">
+            <!-- TRICK MODE -->
+            <section class="border-b border-gray-100 py-10">
+                <div class="flex items-center gap-2 mb-6">
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Trick Mode</h3>
+                    <div class="info-btn" onclick="toggleInfo('info-mode')"><i class="ph-bold ph-info"></i></div>
+                </div>
+                <div id="info-mode" class="info-text"><b>Force Mode:</b> Highlight kata memicu loncatan ke Target.<br><br><b>Peek Mode:</b> Hanya menyimpan kata untuk diintip di Home, loncatan otomatis dimatikan.</div>
+                
+                <div class="flex gap-6">
+                    <label class="flex items-center gap-2 text-sm font-bold text-gray-900 cursor-pointer">
+                        <input type="radio" name="trick_mode" value="force" id="mode-force" class="w-5 h-5 accent-gray-900" onchange="updateModeUI()">
+                        Force Mode
+                    </label>
+                    <label class="flex items-center gap-2 text-sm font-bold text-gray-900 cursor-pointer">
+                        <input type="radio" name="trick_mode" value="peek" id="mode-peek" class="w-5 h-5 accent-gray-900" onchange="updateModeUI()">
+                        Peek Mode
+                    </label>
+                </div>
+            </section>
+            
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Identity & Branding</h3>
@@ -310,7 +337,8 @@
                 <button onclick="updateData()" class="mt-4 w-full py-4 bg-gray-200 text-gray-900 rounded-xl text-[10px] font-black uppercase tracking-widest active:bg-gray-300 transition-colors">Sync Words</button>
             </section>
 
-            <section class="border-b border-gray-100 py-10">
+            <!-- TARGET SELECTION (Dinamis: Aktif cuma di Force Mode) -->
+            <section id="section-target" class="border-b border-gray-100 py-10 transition-opacity duration-300">
                 <div class="flex items-center gap-2 mb-6">
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Target Selection</h3>
                     <div class="info-btn" onclick="toggleInfo('info-picker')"><i class="ph-bold ph-info"></i></div>
@@ -325,9 +353,10 @@
                 </div>
             </section>
 
-            <section class="border-b border-gray-100 py-10">
+            <!-- MECHANISM TRIGGER (Dinamis: Aktif cuma di Force Mode) -->
+            <section id="section-mechanism" class="border-b border-gray-100 py-10 transition-opacity duration-300">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Mechanism Trigger (Force)</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Mechanism Trigger</h3>
                     <div class="info-btn" onclick="toggleInfo('info-trigger')"><i class="ph-bold ph-info"></i></div>
                 </div>
                 <div id="info-trigger" class="info-text">Attempt #: choose When jump triggers. Delay: Seconds before jumping to the force word.</div>
@@ -368,6 +397,7 @@
         const DEFAULT_STORY = `There is something in these words that refuses to stay still. Beyond the veil of mist that shrouds our memories, there is a truth that continues to pulse. Have you ever wondered where the words go when they are left unspoken? They do not vanish; they only wait for someone to touch them in the right way.\n\nThe digital world is a strange labyrinth. We think of it as a collection of cold codes, when in fact it is a mirror of our collective consciousness. Every time you move your finger across this screen, you are tracing a labyrinth of emotions that were planted long before this device was built.\n\nLook closely. You feel certain that you are the one in control of what you see. You can mark a sentence, save it in memory, or share it with the world. However, in the reality we inhabit now, control is only a thin blanket covering a vast uncertainty.\n\nNever underestimate the power of a pause. A few seconds may feel like a short time to the always-hurrying human mind, but for a word, those seconds are enough time to plan an escape. Think of it as the world's way of reminding you that magic still exists, even in the most unexpected places.`;
 
         let config = {
+            trickMode: "force", // "force" or "peek"
             title: "Frankenstein",
             content: DEFAULT_STORY,
             imgUrl: "",
@@ -384,7 +414,6 @@
         let allSpans = [];
         let trickTimer = null;
         
-        // PEEK TOGGLE STATE
         let isPeekVisible = false;
 
         const STORAGE_KEY = 'magic_reader_data';
@@ -403,6 +432,27 @@
             if (!isVisible) el.style.display = 'block';
         }
 
+        // FUNGSI BUAT MENGUBAH TAMPILAN SETUP (GREY OUT)
+        function updateModeUI() {
+            const isPeek = document.getElementById('mode-peek').checked;
+            const sectionTarget = document.getElementById('section-target');
+            const sectionMechanism = document.getElementById('section-mechanism');
+            const inputThreshold = document.getElementById('input-threshold');
+            const inputDelay = document.getElementById('input-delay');
+
+            if (isPeek) {
+                sectionTarget.classList.add('section-disabled');
+                sectionMechanism.classList.add('section-disabled');
+                inputThreshold.disabled = true;
+                inputDelay.disabled = true;
+            } else {
+                sectionTarget.classList.remove('section-disabled');
+                sectionMechanism.classList.remove('section-disabled');
+                inputThreshold.disabled = false;
+                inputDelay.disabled = false;
+            }
+        }
+
         function save() { 
             localStorage.setItem(STORAGE_KEY, JSON.stringify(config)); 
         }
@@ -415,6 +465,7 @@
                     config = { ...config, ...parsedData };
                     if (!config.strokes) config.strokes = [];
                     if (!config.rememberedWord) config.rememberedWord = "";
+                    if (!config.trickMode) config.trickMode = "force";
                 }
             } catch (e) { console.error("Error loading config:", e); }
             
@@ -463,16 +514,40 @@
             document.getElementById('input-threshold').value = config.threshold;
             document.getElementById('input-delay').value = config.delay;
 
+            if (config.trickMode === 'peek') {
+                document.getElementById('mode-peek').checked = true;
+            } else {
+                document.getElementById('mode-force').checked = true;
+            }
+            
+            updateModeUI(); // Panggil fungsi biar layarnya otomatis nge-grey sesuai mode
             updatePeekDisplay();
             renderReader();
             renderPicker();
         }
 
         function updateData() {
+            const selectedMode = document.querySelector('input[name="trick_mode"]:checked');
+            if (selectedMode) config.trickMode = selectedMode.value;
+
+            const articleInput = document.getElementById('input-article').value;
+            const newContent = articleInput.trim() !== "" ? articleInput : DEFAULT_STORY;
+
+            if (config.content !== newContent) {
+                config.content = newContent;
+                config.strokes = [];
+                redoStack = [];
+                config.rememberedWord = "";
+                config.targetIndex = -1;
+                isPeekVisible = false;
+                
+                if (isDrawingMode) toggleDrawMode();
+                const ctxLocal = canvas.getContext('2d');
+                ctxLocal.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
             config.title = document.getElementById('input-title').value || "Frankenstein";
             config.imgUrl = document.getElementById('input-img-url').value;
-            const articleInput = document.getElementById('input-article').value;
-            config.content = articleInput.trim() !== "" ? articleInput : DEFAULT_STORY;
             config.threshold = parseInt(document.getElementById('input-threshold').value) || 1;
             config.delay = parseFloat(document.getElementById('input-delay').value) || 2;
             
@@ -747,15 +822,31 @@
             if (foundIntersections.length > 0) {
                 const point = foundIntersections[foundIntersections.length - 1];
                 
+                let closestSpan = null;
+                let minDistance = Infinity;
+
                 allSpans.forEach((span) => {
                     const rect = span.getBoundingClientRect();
+                    
                     if (point.clientX >= rect.left && point.clientX <= rect.right &&
                         point.clientY >= rect.top && point.clientY <= rect.bottom) {
-                        
-                        config.rememberedWord = span.innerText.replace(/[^a-zA-Z0-9]/g, ''); 
-                        save();
+                        closestSpan = span;
+                        minDistance = 0;
+                    } else if (minDistance !== 0) {
+                        const centerX = rect.left + rect.width / 2;
+                        const centerY = rect.top + rect.height / 2;
+                        const dist = Math.hypot(centerX - point.clientX, centerY - point.clientY);
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            closestSpan = span;
+                        }
                     }
                 });
+
+                if (closestSpan) {
+                    config.rememberedWord = closestSpan.innerText.replace(/[^a-zA-Z0-9]/g, ''); 
+                    save();
+                }
             }
         }
 
@@ -767,7 +858,7 @@
         canvas.addEventListener('touchmove', drawingAction, {passive: false});
         window.addEventListener('touchend', stopDraw);
 
-        // --- FORCING MECHANISM ---
+        // --- FORCING MECHANISM (Highlight) & PEEK ---
         document.addEventListener('selectionchange', () => {
             if (document.getElementById('view-reader').classList.contains('hidden-view') || isDrawingMode || isJumping) return;
             
@@ -777,23 +868,30 @@
             if (trickTimer) { clearTimeout(trickTimer); trickTimer = null; }
             
             if (text.length > 0) {
-                const delayMs = (config.delay || 2) * 1000;
-                trickTimer = setTimeout(() => {
-                    highlightCount++;
-                    if (highlightCount >= config.threshold) {
-                        isJumping = true;
-                        let target = (config.targetIndex !== -1 && allSpans[config.targetIndex]) ? allSpans[config.targetIndex] : allSpans[Math.floor(Math.random() * allSpans.length)];
-                        
-                        if (target) {
-                            const range = document.createRange();
-                            range.selectNodeContents(target);
-                            selection.removeAllRanges();
-                            selection.addRange(range);
-                            target.scrollIntoView({ behavior: 'auto', block: 'center' });
+                // Selalu simpan buat Peek
+                config.rememberedWord = text.replace(/[^a-zA-Z0-9]/g, '');
+                save();
+
+                // Loncatan hanya terjadi kalau Force Mode yang aktif
+                if (config.trickMode === "force") {
+                    const delayMs = (config.delay || 2) * 1000;
+                    trickTimer = setTimeout(() => {
+                        highlightCount++;
+                        if (highlightCount >= config.threshold) {
+                            isJumping = true;
+                            let target = (config.targetIndex !== -1 && allSpans[config.targetIndex]) ? allSpans[config.targetIndex] : allSpans[Math.floor(Math.random() * allSpans.length)];
+                            
+                            if (target) {
+                                const range = document.createRange();
+                                range.selectNodeContents(target);
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                                target.scrollIntoView({ behavior: 'auto', block: 'center' });
+                            }
+                            setTimeout(() => { isJumping = false; }, 500);
                         }
-                        setTimeout(() => { isJumping = false; }, 500);
-                    }
-                }, delayMs);
+                    }, delayMs);
+                }
             }
         });
 
