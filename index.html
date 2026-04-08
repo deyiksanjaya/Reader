@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,10 +109,6 @@
             pointer-events: auto;
             cursor: crosshair;
         }
-
-        #reader-title {
-            transition: opacity 0.2s;
-        }
     </style>
 </head>
 <body class="bg-gray-50/50">
@@ -160,7 +157,8 @@
                         <p class="text-[6px] text-gray-600 mb-4 mt-2">Copyright © 2024 by Fraser Parker</p>
                         <h2 class="serif text-xl font-bold italic mb-4 tracking-tighter">Agory</h2>
                         <div class="w-full text-[4px] leading-tight text-justify text-gray-400 space-y-2 opacity-60">
-                            <p>The following method allows you to guess the date of birth of a spectator entirely prop-less...</p>
+                            <!-- Peek Display Area -->
+                            <p><span id="peek-display">The</span> following method allows you to guess the date of birth of a spectator entirely prop-less...</p>
                             <p>I feel this is the most streamline version of this type of plot...</p>
                         </div>
                     </div>
@@ -258,6 +256,7 @@
                     <div class="w-px h-5 bg-gray-200"></div>
                     <button onclick="redoStroke()" class="text-gray-700 active:text-gray-900 active:scale-90 transition-all"><i class="ph-bold ph-arrow-u-up-right text-xl"></i></button>
                     <div class="w-px h-5 bg-gray-200"></div>
+                    <!-- Tombol Clear sekarang cuma hapus gambar -->
                     <button onclick="clearCanvas()" class="text-red-500 active:text-red-700 active:scale-90 transition-all"><i class="ph-bold ph-trash text-xl"></i></button>
                 </div>
             </div>
@@ -267,7 +266,7 @@
             <main class="max-w-xl mx-auto px-7 pb-44" style="padding-top: calc(4.5rem + env(safe-area-inset-top));">
                 <header class="mb-14 text-center relative z-20">
                     <p class="text-[10px] tracking-[0.4em] text-gray-400 uppercase font-bold mb-4">Chapter One</p>
-                    <h1 id="reader-title" class="serif text-4xl font-bold text-gray-950 leading-tight cursor-pointer select-none"></h1>
+                    <h1 id="reader-title" class="serif text-4xl font-bold text-gray-950 leading-tight select-none"></h1>
                     <div class="w-10 h-0.5 bg-gray-100 mx-auto mt-10"></div>
                 </header>
                 <article id="reader-content" class="serif text-[21px] leading-relaxed text-justify space-y-10 text-gray-900"></article>
@@ -289,6 +288,26 @@
         </div>
 
         <div class="px-6 py-4 max-w-lg mx-auto">
+
+            <!-- TRICK MODE -->
+            <section class="border-b border-gray-100 py-10">
+                <div class="flex items-center gap-2 mb-6">
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Trick Mode</h3>
+                    <div class="info-btn" onclick="toggleInfo('info-mode')"><i class="ph-bold ph-info"></i></div>
+                </div>
+                <div id="info-mode" class="info-text"><b>Force Mode:</b> Highlight kata memicu loncatan ke Target.<br><br><b>Peek Mode:</b> Kata yang di-highlight akan diingat diam-diam dan muncul menggantikan kata "The" di deskripsi buku Agory.</div>
+                
+                <div class="flex gap-6">
+                    <label class="flex items-center gap-2 text-sm font-bold text-gray-900 cursor-pointer">
+                        <input type="radio" name="trick_mode" value="force" id="mode-force" class="w-5 h-5 accent-gray-900">
+                        Force Mode
+                    </label>
+                    <label class="flex items-center gap-2 text-sm font-bold text-gray-900 cursor-pointer">
+                        <input type="radio" name="trick_mode" value="peek" id="mode-peek" class="w-5 h-5 accent-gray-900">
+                        Peek Mode
+                    </label>
+                </div>
+            </section>
             
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
@@ -329,7 +348,7 @@
 
             <section class="border-b border-gray-100 py-10">
                 <div class="flex items-center gap-2 mb-6">
-                    <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Mechanism</h3>
+                    <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Mechanism Trigger (Force)</h3>
                     <div class="info-btn" onclick="toggleInfo('info-trigger')"><i class="ph-bold ph-info"></i></div>
                 </div>
                 <div id="info-trigger" class="info-text">Attempt #: choose When jump triggers. Delay: Seconds before jumping to the force word.</div>
@@ -370,6 +389,7 @@
         const DEFAULT_STORY = `There is something in these words that refuses to stay still. Beyond the veil of mist that shrouds our memories, there is a truth that continues to pulse. Have you ever wondered where the words go when they are left unspoken? They do not vanish; they only wait for someone to touch them in the right way.\n\nThe digital world is a strange labyrinth. We think of it as a collection of cold codes, when in fact it is a mirror of our collective consciousness. Every time you move your finger across this screen, you are tracing a labyrinth of emotions that were planted long before this device was built.\n\nLook closely. You feel certain that you are the one in control of what you see. You can mark a sentence, save it in memory, or share it with the world. However, in the reality we inhabit now, control is only a thin blanket covering a vast uncertainty.\n\nNever underestimate the power of a pause. A few seconds may feel like a short time to the always-hurrying human mind, but for a word, those seconds are enough time to plan an escape. Think of it as the world's way of reminding you that magic still exists, even in the most unexpected places.`;
 
         let config = {
+            trickMode: "force", // "force" or "peek"
             title: "Frankenstein",
             content: DEFAULT_STORY,
             imgUrl: "",
@@ -385,7 +405,6 @@
         let clickHistory = [];
         let allSpans = [];
         let trickTimer = null;
-        let titleTimeout = null;
         
         const STORAGE_KEY = 'magic_reader_data';
 
@@ -415,9 +434,21 @@
                     config = { ...config, ...parsedData };
                     if (!config.strokes) config.strokes = [];
                     if (!config.rememberedWord) config.rememberedWord = "";
+                    if (!config.trickMode) config.trickMode = "force";
                 }
             } catch (e) { console.error("Error loading config:", e); }
             updateUI();
+        }
+
+        function updatePeekDisplay() {
+            let word = config.rememberedWord ? config.rememberedWord.trim() : "The";
+            if (word.length > 0) {
+                word = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            } else {
+                word = "The";
+            }
+            const peekEl = document.getElementById('peek-display');
+            if(peekEl) peekEl.innerText = word;
         }
 
         function updateUI() {
@@ -440,18 +471,29 @@
             document.getElementById('input-article').value = config.content;
             document.getElementById('input-threshold').value = config.threshold;
             document.getElementById('input-delay').value = config.delay;
+
+            if (config.trickMode === 'peek') {
+                document.getElementById('mode-peek').checked = true;
+            } else {
+                document.getElementById('mode-force').checked = true;
+            }
             
+            updatePeekDisplay();
             renderReader();
             renderPicker();
         }
 
         function updateData() {
+            const selectedMode = document.querySelector('input[name="trick_mode"]:checked');
+            if (selectedMode) config.trickMode = selectedMode.value;
+
             config.title = document.getElementById('input-title').value || "Frankenstein";
             config.imgUrl = document.getElementById('input-img-url').value;
             const articleInput = document.getElementById('input-article').value;
             config.content = articleInput.trim() !== "" ? articleInput : DEFAULT_STORY;
             config.threshold = parseInt(document.getElementById('input-threshold').value) || 1;
             config.delay = parseFloat(document.getElementById('input-delay').value) || 2;
+            
             save();
             updateUI();
         }
@@ -530,7 +572,7 @@
             document.getElementById('view-reader').classList.add('hidden-view');
             document.getElementById('view-library').classList.remove('hidden-view');
             if (trickTimer) clearTimeout(trickTimer);
-            if (titleTimeout) clearTimeout(titleTimeout);
+            updatePeekDisplay(); 
         }
 
         function resetToDefault() {
@@ -539,19 +581,6 @@
                 location.reload();
             }
         }
-
-        // --- TITLE PEEK LOGIC ---
-        document.getElementById('reader-title').addEventListener('click', function() {
-            if (config.rememberedWord && config.rememberedWord.trim() !== "") {
-                if (titleTimeout) clearTimeout(titleTimeout);
-                
-                this.innerText = config.rememberedWord;
-                
-                titleTimeout = setTimeout(() => {
-                    this.innerText = config.title;
-                }, 1500);
-            }
-        });
 
         // --- DRAWING ENGINE ---
         function updateDrawToolsVisibility() {
@@ -632,11 +661,18 @@
         }
 
         function clearCanvas() {
+            // Hapus gambar aja, kata target tetep disimpen di config.rememberedWord
             config.strokes = [];
             redoStack = [];
             save();
             redrawCanvas();
-            updateDrawToolsVisibility();
+            
+            // Otomatis matiin mode gambar kalau layar udah bersih
+            if (isDrawingMode) {
+                toggleDrawMode();
+            } else {
+                updateDrawToolsVisibility();
+            }
         }
 
         function getMousePos(evt) {
@@ -732,6 +768,7 @@
                         
                         config.rememberedWord = span.innerText.replace(/[^a-zA-Z0-9]/g, ''); 
                         save();
+                        // Jangan langsung update UI Peek di library selama buku masih kebuka biar aman
                     }
                 });
             }
@@ -745,7 +782,7 @@
         canvas.addEventListener('touchmove', drawingAction, {passive: false});
         window.addEventListener('touchend', stopDraw);
 
-        // --- FORCING MECHANISM ---
+        // --- FORCING / PEEK HIGHLIGHT MECHANISM ---
         document.addEventListener('selectionchange', () => {
             if (document.getElementById('view-reader').classList.contains('hidden-view') || isDrawingMode || isJumping) return;
             
@@ -755,23 +792,30 @@
             if (trickTimer) { clearTimeout(trickTimer); trickTimer = null; }
             
             if (text.length > 0) {
-                const delayMs = (config.delay || 2) * 1000;
-                trickTimer = setTimeout(() => {
-                    highlightCount++;
-                    if (highlightCount >= config.threshold) {
-                        isJumping = true;
-                        let target = (config.targetIndex !== -1 && allSpans[config.targetIndex]) ? allSpans[config.targetIndex] : allSpans[Math.floor(Math.random() * allSpans.length)];
-                        
-                        if (target) {
-                            const range = document.createRange();
-                            range.selectNodeContents(target);
-                            selection.removeAllRanges();
-                            selection.addRange(range);
-                            target.scrollIntoView({ behavior: 'auto', block: 'center' });
+                if (config.trickMode === "peek") {
+                    // PEEK MODE: Ingat kata diem-diem
+                    config.rememberedWord = text.replace(/[^a-zA-Z0-9]/g, '');
+                    save();
+                } else {
+                    // FORCE MODE: Loncatin selection ke target word
+                    const delayMs = (config.delay || 2) * 1000;
+                    trickTimer = setTimeout(() => {
+                        highlightCount++;
+                        if (highlightCount >= config.threshold) {
+                            isJumping = true;
+                            let target = (config.targetIndex !== -1 && allSpans[config.targetIndex]) ? allSpans[config.targetIndex] : allSpans[Math.floor(Math.random() * allSpans.length)];
+                            
+                            if (target) {
+                                const range = document.createRange();
+                                range.selectNodeContents(target);
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                                target.scrollIntoView({ behavior: 'auto', block: 'center' });
+                            }
+                            setTimeout(() => { isJumping = false; }, 500);
                         }
-                        setTimeout(() => { isJumping = false; }, 500);
-                    }
-                }, delayMs);
+                    }, delayMs);
+                }
             }
         });
 
