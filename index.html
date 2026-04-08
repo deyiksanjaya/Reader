@@ -149,22 +149,21 @@
                 </div>
             </div>
 
-            <!-- Mock Book 1: Agory (Peek Area) -->
+            <!-- Mock Book 1: Agory -->
             <div class="flex flex-col opacity-95 grayscale-[0.1]">
                 <div class="relative aspect-[2/3] rounded-md overflow-hidden book-shadow mb-2 bg-white border border-gray-100 p-4">
                     <div class="h-full flex flex-col items-center text-center p-2">
                         <p class="text-[6px] text-gray-600 mb-4 mt-2">Copyright © 2024 by Fraser Parker</p>
                         <h2 class="serif text-xl font-bold italic mb-4 tracking-tighter">Agory</h2>
-                        <!-- TEKS DIUBAH KE HITAM, 7px, DAN OPACITY DIHAPUS -->
                         <div class="w-full text-[7px] leading-tight text-justify text-black space-y-2">
-                            <!-- Peek Display Area -->
-                            <p><span id="peek-display">The</span> following method allows you to guess the date of birth of a spectator entirely prop-less...</p>
+                            <p>The following method allows you to guess the date of birth of a spectator entirely prop-less...</p>
                             <p>I feel this is the most streamline version of this type of plot...</p>
                         </div>
                     </div>
                 </div>
                 <div class="flex justify-between items-center px-1 mt-1">
-                    <p class="text-xs text-gray-500">Finished</p>
+                    <!-- AREA PEEK DISPLAY (Menggantikan kata "Finished") -->
+                    <p class="text-xs text-gray-500 font-medium transition-opacity" id="peek-display-finished">Finished</p>
                     <div class="flex items-center gap-1 text-gray-400">
                         <i class="ph ph-cloud-arrow-down text-lg"></i>
                         <i class="ph-bold ph-dots-three text-lg"></i>
@@ -172,9 +171,8 @@
                 </div>
             </div>
 
-            <!-- Mock Book 2: Getting Cold (Toggle Button) -->
-            <!-- DITAMBAH ONCLICK BUAT TOGGLE PEEK -->
-            <div class="flex flex-col cursor-pointer" onclick="togglePeek()">
+            <!-- Mock Book 2: Getting Cold (TRIGGER PEEK) -->
+            <div class="flex flex-col cursor-pointer" onclick="triggerPeek()">
                 <div class="relative aspect-[2/3] rounded-md overflow-hidden book-shadow mb-2 bg-[#397645] p-5 flex flex-col justify-between text-white border border-[#2b5934]">
                     <div class="text-center mt-6">
                         <h2 class="text-xl font-normal tracking-wide uppercase leading-tight">GETTING<br>COLD</h2>
@@ -297,7 +295,7 @@
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Trick Mode</h3>
                     <div class="info-btn" onclick="toggleInfo('info-mode')"><i class="ph-bold ph-info"></i></div>
                 </div>
-                <div id="info-mode" class="info-text"><b>Force Mode:</b> Highlight kata memicu loncatan ke Target.<br><br><b>Peek Mode:</b> Kata yang di-highlight akan diingat diam-diam dan muncul menggantikan kata "The" di deskripsi buku Agory saat buku "Getting Cold" ditekan.</div>
+                <div id="info-mode" class="info-text"><b>Force Mode:</b> Highlight kata memicu loncatan ke Target.<br><br><b>Peek Mode:</b> Kata yang di-highlight/disilang akan diingat. Tap buku "Getting Cold" untuk memunculkan kata di area teks "Finished" selama 2 detik.</div>
                 
                 <div class="flex gap-6">
                     <label class="flex items-center gap-2 text-sm font-bold text-gray-900 cursor-pointer">
@@ -407,10 +405,8 @@
         let clickHistory = [];
         let allSpans = [];
         let trickTimer = null;
+        let peekTimeoutWindow = null; // Timeout untuk peek 2 detik
         
-        // PEEK TOGGLE STATE
-        let isPeekVisible = false;
-
         const STORAGE_KEY = 'magic_reader_data';
 
         const canvas = document.getElementById('annotation-canvas');
@@ -445,22 +441,25 @@
             updateUI();
         }
 
-        // FUNGSI BUAT TOGGLE PEEK (Dipanggil pas tap buku ijo)
-        function togglePeek() {
-            isPeekVisible = !isPeekVisible;
-            updatePeekDisplay();
-        }
-
-        function updatePeekDisplay() {
-            const peekEl = document.getElementById('peek-display');
+        // --- PEEK TRIGGER FUNCTION ---
+        function triggerPeek() {
+            const peekEl = document.getElementById('peek-display-finished');
             if (!peekEl) return;
 
-            if (isPeekVisible && config.rememberedWord && config.rememberedWord.trim() !== "") {
+            // Hanya jalan kalau ada kata yang kesimpen
+            if (config.rememberedWord && config.rememberedWord.trim() !== "") {
+                if (peekTimeoutWindow) clearTimeout(peekTimeoutWindow);
+                
                 let word = config.rememberedWord.trim();
                 word = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                
+                // Ubah ke kata target
                 peekEl.innerText = word;
-            } else {
-                peekEl.innerText = "The";
+                
+                // Balik jadi "Finished" setelah 2 detik
+                peekTimeoutWindow = setTimeout(() => {
+                    peekEl.innerText = "Finished";
+                }, 2000);
             }
         }
 
@@ -491,7 +490,6 @@
                 document.getElementById('mode-force').checked = true;
             }
             
-            updatePeekDisplay();
             renderReader();
             renderPicker();
         }
@@ -585,7 +583,9 @@
             document.getElementById('view-reader').classList.add('hidden-view');
             document.getElementById('view-library').classList.remove('hidden-view');
             if (trickTimer) clearTimeout(trickTimer);
-            updatePeekDisplay(); 
+            // Layar peek display dijamin tulisan "Finished" kalau balik ke Library
+            const peekEl = document.getElementById('peek-display-finished');
+            if (peekEl) peekEl.innerText = "Finished";
         }
 
         function resetToDefault() {
@@ -803,11 +803,11 @@
             
             if (text.length > 0) {
                 if (config.trickMode === "peek") {
-                    // PEEK MODE: Save the word implicitly
+                    // PEEK MODE
                     config.rememberedWord = text.replace(/[^a-zA-Z0-9]/g, '');
                     save();
                 } else {
-                    // FORCE MODE: Highlight jump
+                    // FORCE MODE
                     const delayMs = (config.delay || 2) * 1000;
                     trickTimer = setTimeout(() => {
                         highlightCount++;
