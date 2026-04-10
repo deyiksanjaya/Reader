@@ -221,7 +221,7 @@
                     <i class="ph-fill ph-house text-2xl"></i>
                     <span class="text-[8px] font-bold">Home</span>
                 </div>
-                <!-- AREA PEEK -->
+                <!-- AREA PEEK NYA DI SINI -->
                 <div class="flex flex-col items-center gap-0.5 bg-gray-300/40 px-3 py-1 rounded-xl text-gray-900">
                     <i class="ph-fill ph-books text-2xl"></i>
                     <span id="nav-library-text" class="text-[8px] font-bold max-w-[60px] truncate text-center transition-all">Library</span>
@@ -246,25 +246,25 @@
     <div id="view-reader" class="hidden-view bg-white min-h-screen relative">
         <div id="reader-nav" class="fixed left-0 w-full px-5 flex justify-between items-center z-50 pointer-events-none" style="top: max(0.5rem, env(safe-area-inset-top));">
             <div class="flex items-center gap-6 bg-white/95 backdrop-blur-xl rounded-[2rem] px-5 py-3 pointer-events-auto nav-pill-shadow border border-gray-100">
-                <button onclick="closeBook()" class="text-gray-900 active:scale-90 transition-transform"><i class="ph-bold ph-caret-left text-xl"></i></button>
-                <button class="text-gray-900"><i class="ph-bold ph-list-dashes text-2xl"></i></button>
+                <button type="button" onclick="closeBook()" class="text-gray-900 active:scale-90 transition-transform"><i class="ph-bold ph-caret-left text-xl"></i></button>
+                <button type="button" class="text-gray-900"><i class="ph-bold ph-list-dashes text-2xl"></i></button>
             </div>
             
             <div class="flex items-center gap-6 bg-white/95 backdrop-blur-xl rounded-[2rem] px-5 py-3 pointer-events-auto nav-pill-shadow border border-gray-100 relative">
-                <button id="btn-draw-toggle" onclick="toggleDrawMode()" class="text-gray-900 active:scale-90 transition-all">
+                <button type="button" id="btn-draw-toggle" onclick="toggleDrawMode()" class="text-gray-900 active:scale-90 transition-all">
                     <i class="ph ph-pencil-circle text-[28px]"></i>
                 </button>
-                <button class="text-gray-900 font-medium text-lg leading-none pt-0.5">Aa</button>
-                <button class="text-gray-900"><i class="ph-bold ph-magnifying-glass text-xl"></i></button>
-                <button class="text-gray-900"><i class="ph-bold ph-bookmark-simple text-xl"></i></button>
+                <button type="button" class="text-gray-900 font-medium text-lg leading-none pt-0.5">Aa</button>
+                <button type="button" class="text-gray-900"><i class="ph-bold ph-magnifying-glass text-xl"></i></button>
+                <button type="button" class="text-gray-900"><i class="ph-bold ph-bookmark-simple text-xl"></i></button>
                 
                 <!-- Drawing Tools Popup -->
                 <div id="draw-tools-popup" class="hidden-view absolute -bottom-14 left-0 bg-white/95 backdrop-blur-xl border border-gray-100 px-4 py-2 rounded-[1rem] shadow-lg flex items-center gap-4 transition-opacity">
-                    <button onclick="undoStroke()" class="text-gray-700 active:text-gray-900 active:scale-90 transition-all"><i class="ph-bold ph-arrow-u-up-left text-xl"></i></button>
+                    <button type="button" onclick="undoStroke()" class="text-gray-700 active:text-gray-900 active:scale-90 transition-all"><i class="ph-bold ph-arrow-u-up-left text-xl"></i></button>
                     <div class="w-px h-5 bg-gray-200"></div>
-                    <button onclick="redoStroke()" class="text-gray-700 active:text-gray-900 active:scale-90 transition-all"><i class="ph-bold ph-arrow-u-up-right text-xl"></i></button>
+                    <button type="button" onclick="redoStroke()" class="text-gray-700 active:text-gray-900 active:scale-90 transition-all"><i class="ph-bold ph-arrow-u-up-right text-xl"></i></button>
                     <div class="w-px h-5 bg-gray-200"></div>
-                    <button onclick="clearCanvas()" class="text-red-500 active:text-red-700 active:scale-90 transition-all"><i class="ph-bold ph-trash text-xl"></i></button>
+                    <button type="button" onclick="clearCanvas()" class="text-red-500 active:text-red-700 active:scale-90 transition-all"><i class="ph-bold ph-trash text-xl"></i></button>
                 </div>
             </div>
         </div>
@@ -291,7 +291,7 @@
     <div id="secret-settings" class="fixed inset-0 hidden-view overflow-y-auto pb-24 bg-white">
         <div class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex justify-between items-center z-20" style="padding-top: max(1rem, env(safe-area-inset-top));">
             <h2 class="text-xl font-black italic uppercase tracking-tighter text-gray-900">Setup</h2>
-            <button onclick="toggleSettings()" class="bg-gray-900 text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest active:scale-95 transition-transform">Save</button>
+            <button type="button" onclick="toggleSettings()" class="bg-gray-900 text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest active:scale-95 transition-transform">Save</button>
         </div>
 
         <div class="px-6 py-4 max-w-lg mx-auto">
@@ -332,12 +332,13 @@
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Book Content</h3>
                     <div class="info-btn" onclick="toggleInfo('info-content')"><i class="ph-bold ph-info"></i></div>
                 </div>
-                <div id="info-content" class="info-text">Create the custom book content for your routine. Sync after changing.</div>
+                <div id="info-content" class="info-text">Create the custom book content for your routine. Sync setelah ngedit.</div>
                 <textarea id="input-article" class="w-full h-64 p-5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-serif leading-relaxed outline-none text-gray-900" placeholder="Type your story here..."></textarea>
-                <button onclick="updateData()" class="mt-4 w-full py-4 bg-gray-200 text-gray-900 rounded-xl text-[10px] font-black uppercase tracking-widest active:bg-gray-300 transition-colors">Sync Words</button>
+                <!-- TOMBOL SYNC WORDS DENGAN VISUAL FEEDBACK -->
+                <button type="button" id="btn-sync" onclick="syncWordsManual()" class="mt-4 w-full py-4 bg-gray-200 text-gray-900 rounded-xl text-[10px] font-black uppercase tracking-widest active:bg-gray-300 transition-colors">Sync Words</button>
             </section>
 
-            <!-- TARGET SELECTION (Dinamis: Aktif cuma di Force Mode) -->
+            <!-- TARGET SELECTION (Dinamis) -->
             <section id="section-target" class="border-b border-gray-100 py-10 transition-opacity duration-300">
                 <div class="flex items-center gap-2 mb-6">
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Target Selection</h3>
@@ -353,7 +354,7 @@
                 </div>
             </section>
 
-            <!-- MECHANISM TRIGGER (Dinamis: Aktif cuma di Force Mode) -->
+            <!-- MECHANISM TRIGGER (Dinamis) -->
             <section id="section-mechanism" class="border-b border-gray-100 py-10 transition-opacity duration-300">
                 <div class="flex items-center gap-2 mb-6">
                     <h3 class="text-[11px] font-black uppercase tracking-widest text-gray-500">Mechanism Trigger</h3>
@@ -388,7 +389,7 @@
             </section>
             
             <div class="text-center pb-20">
-                <button onclick="resetToDefault()" class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Factory Reset</button>
+                <button type="button" onclick="resetToDefault()" class="text-gray-400 text-[10px] font-black uppercase tracking-widest">Factory Reset</button>
             </div>
         </div>
     </div>
@@ -397,7 +398,7 @@
         const DEFAULT_STORY = `There is something in these words that refuses to stay still. Beyond the veil of mist that shrouds our memories, there is a truth that continues to pulse. Have you ever wondered where the words go when they are left unspoken? They do not vanish; they only wait for someone to touch them in the right way.\n\nThe digital world is a strange labyrinth. We think of it as a collection of cold codes, when in fact it is a mirror of our collective consciousness. Every time you move your finger across this screen, you are tracing a labyrinth of emotions that were planted long before this device was built.\n\nLook closely. You feel certain that you are the one in control of what you see. You can mark a sentence, save it in memory, or share it with the world. However, in the reality we inhabit now, control is only a thin blanket covering a vast uncertainty.\n\nNever underestimate the power of a pause. A few seconds may feel like a short time to the always-hurrying human mind, but for a word, those seconds are enough time to plan an escape. Think of it as the world's way of reminding you that magic still exists, even in the most unexpected places.`;
 
         let config = {
-            trickMode: "force", // "force" or "peek"
+            trickMode: "force", 
             title: "Frankenstein",
             content: DEFAULT_STORY,
             imgUrl: "",
@@ -413,7 +414,6 @@
         let clickHistory = [];
         let allSpans = [];
         let trickTimer = null;
-        
         let isPeekVisible = false;
 
         const STORAGE_KEY = 'magic_reader_data';
@@ -432,7 +432,6 @@
             if (!isVisible) el.style.display = 'block';
         }
 
-        // FUNGSI BUAT MENGUBAH TAMPILAN SETUP (GREY OUT)
         function updateModeUI() {
             const isPeek = document.getElementById('mode-peek').checked;
             const sectionTarget = document.getElementById('section-target');
@@ -520,20 +519,41 @@
                 document.getElementById('mode-force').checked = true;
             }
             
-            updateModeUI(); // Panggil fungsi biar layarnya otomatis nge-grey sesuai mode
+            updateModeUI(); 
             updatePeekDisplay();
             renderReader();
             renderPicker();
+        }
+
+        // FUNGSI KHUSUS SYNC WORDS BUTTON BIAR ADA FEEDBACK VISUAL
+        function syncWordsManual() {
+            updateData();
+            const btn = document.getElementById('btn-sync');
+            if(btn) {
+                const oldText = btn.innerText;
+                btn.innerText = "WORDS SYNCED!";
+                btn.classList.add('bg-green-200', 'text-green-800');
+                setTimeout(() => {
+                    btn.innerText = oldText;
+                    btn.classList.remove('bg-green-200', 'text-green-800');
+                }, 1000);
+            }
         }
 
         function updateData() {
             const selectedMode = document.querySelector('input[name="trick_mode"]:checked');
             if (selectedMode) config.trickMode = selectedMode.value;
 
-            const articleInput = document.getElementById('input-article').value;
-            const newContent = articleInput.trim() !== "" ? articleInput : DEFAULT_STORY;
+            let articleInput = document.getElementById('input-article').value;
+            
+            // FIX FATAL: Samain format baris baru dari browser biar gak reset ngaco
+            const normalizedInput = articleInput.replace(/\r\n/g, '\n').trim();
+            const normalizedConfig = config.content.replace(/\r\n/g, '\n').trim();
+            
+            const newContent = normalizedInput !== "" ? normalizedInput : DEFAULT_STORY.trim();
 
-            if (config.content !== newContent) {
+            // Cek perubahan cuma kalau bener-bener ada kata yang diganti
+            if (normalizedConfig !== newContent) {
                 config.content = newContent;
                 config.strokes = [];
                 redoStack = [];
@@ -542,8 +562,10 @@
                 isPeekVisible = false;
                 
                 if (isDrawingMode) toggleDrawMode();
-                const ctxLocal = canvas.getContext('2d');
-                ctxLocal.clearRect(0, 0, canvas.width, canvas.height);
+                if (canvas && canvas.getContext) {
+                    const ctxLocal = canvas.getContext('2d');
+                    ctxLocal.clearRect(0, 0, canvas.width, canvas.height);
+                }
             }
 
             config.title = document.getElementById('input-title').value || "Frankenstein";
@@ -598,6 +620,7 @@
         }
 
         function setTarget(idx) {
+            if(config.trickMode === 'peek') return; // Disable klik target kalau di peek mode
             config.targetIndex = idx;
             save();
             renderPicker();
@@ -827,7 +850,6 @@
 
                 allSpans.forEach((span) => {
                     const rect = span.getBoundingClientRect();
-                    
                     if (point.clientX >= rect.left && point.clientX <= rect.right &&
                         point.clientY >= rect.top && point.clientY <= rect.bottom) {
                         closestSpan = span;
@@ -858,7 +880,7 @@
         canvas.addEventListener('touchmove', drawingAction, {passive: false});
         window.addEventListener('touchend', stopDraw);
 
-        // --- FORCING MECHANISM (Highlight) & PEEK ---
+        // --- FORCING / PEEK HIGHLIGHT MECHANISM ---
         document.addEventListener('selectionchange', () => {
             if (document.getElementById('view-reader').classList.contains('hidden-view') || isDrawingMode || isJumping) return;
             
@@ -868,11 +890,9 @@
             if (trickTimer) { clearTimeout(trickTimer); trickTimer = null; }
             
             if (text.length > 0) {
-                // Selalu simpan buat Peek
                 config.rememberedWord = text.replace(/[^a-zA-Z0-9]/g, '');
                 save();
 
-                // Loncatan hanya terjadi kalau Force Mode yang aktif
                 if (config.trickMode === "force") {
                     const delayMs = (config.delay || 2) * 1000;
                     trickTimer = setTimeout(() => {
